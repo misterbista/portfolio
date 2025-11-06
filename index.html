@@ -10,11 +10,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon"
-        href="/favicon.png">
+    <link rel="icon" href="/favicon.png">
 </head>
 
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="terminal-button close"></span>
+                    <span class="terminal-button minimize"></span>
+                    <span class="terminal-button maximize"></span>
+                </div>
+                <div class="terminal-title">portfolio.sh</div>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-content">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header class="header">
             <div class="header-top">
@@ -23,10 +40,12 @@
                     <p class="tagline">Full Stack Developer | Team Lead</p>
                     <p class="location"><i class="fas fa-location-dot"></i> Kathmandu, Nepal</p>
                 </div>
-                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-                    <i class="fas fa-sun sun-icon"></i>
-                    <i class="fas fa-moon moon-icon"></i>
-                </button>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                        <i class="fas fa-sun sun-icon"></i>
+                        <i class="fas fa-moon moon-icon"></i>
+                    </button>
+                </div>
             </div>
             <nav class="contact">
                 <div class="contact-group">
@@ -38,9 +57,18 @@
                 <div class="contact-group">
                     <a href="https://linkedin.com/in/piyushraj-bista-a692a6260" target="_blank"><i
                             class="fab fa-linkedin"></i> LinkedIn</a>
-                    <a href="https://github.com/anormiedev" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://github.com/anormiedev" target="_blank" class="github-link"><i
+                            class="fab fa-github"></i> GitHub</a>
                 </div>
             </nav>
+            <div class="googly-eyes">
+                <div class="eye">
+                    <div class="pupil"></div>
+                </div>
+                <div class="eye">
+                    <div class="pupil"></div>
+                </div>
+            </div>
         </header>
 
         <main class="main-content">

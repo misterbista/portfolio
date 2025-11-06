@@ -1,4 +1,7 @@
-/* Color Variables - Nothing OS Inspired */
+/* ==========================================================================
+   CSS Variables - Color Scheme
+   ========================================================================== */
+
 :root {
     --bg-primary: #ffffff;
     --bg-secondary: #f7f7f7;
@@ -23,6 +26,10 @@ html.dark-mode {
     --section-label: #808080;
 }
 
+/* ==========================================================================
+   Global Styles
+   ========================================================================== */
+
 /* Hide default scrollbar */
 * {
     scrollbar-width: none;
@@ -32,7 +39,273 @@ html.dark-mode {
     display: none;
 }
 
-/* Custom Scroll Indicator */
+/* ==========================================================================
+   Loading Screen
+   ========================================================================== */
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.loading-screen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Terminal Window */
+.terminal-window {
+    width: 900px;
+    max-width: 95vw;
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #404040;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.terminal-button.close {
+    background: #ff5f57;
+}
+
+.terminal-button.minimize {
+    background: #ffbd2e;
+}
+
+.terminal-button.maximize {
+    background: #28ca42;
+}
+
+.terminal-title {
+    color: #cccccc;
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+    margin-right: 32px;
+}
+
+.terminal-body {
+    padding: 20px;
+    background: #1e1e1e;
+    min-height: 200px;
+}
+
+.terminal-content {
+    color: #f8f8f2;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.terminal-line {
+    color: #f8f8f2;
+}
+
+.terminal-line .prompt-user {
+    color: #bd93f9;
+    font-weight: bold;
+}
+
+.terminal-line .prompt-dir {
+    color: #50fa7b;
+    font-weight: bold;
+}
+
+.terminal-line .prompt-git {
+    color: #ffb86c;
+    font-weight: bold;
+}
+
+.terminal-line.output {
+    color: #50fa7b;
+    font-weight: 600;
+    margin-top: 8px;
+    padding-left: 16px;
+}
+
+.cursor {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.terminal-window {
+    width: 900px;
+    max-width: 95vw;
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #404040;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.terminal-button.close {
+    background: #ff5f57;
+}
+
+.terminal-button.minimize {
+    background: #ffbd2e;
+}
+
+.terminal-button.maximize {
+    background: #28ca42;
+}
+
+.terminal-title {
+    color: #cccccc;
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+    margin-right: 32px;
+}
+
+.terminal-body {
+    padding: 20px;
+    background: #1e1e1e;
+    min-height: 200px;
+}
+
+.terminal-content {
+    color: #f8f8f2;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.terminal-line {
+    color: #f8f8f2;
+}
+
+.terminal-line .prompt-user {
+    color: #bd93f9;
+    font-weight: bold;
+}
+
+.terminal-line .prompt-dir {
+    color: #50fa7b;
+    font-weight: bold;
+}
+
+.terminal-line .prompt-git {
+    color: #ffb86c;
+    font-weight: bold;
+}
+
+.terminal-line.output {
+    color: #50fa7b;
+    font-weight: 600;
+    margin-top: 8px;
+    padding-left: 16px;
+}
+
+.cursor {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ==========================================================================
+   Page Content Animation
+   ========================================================================== */
+
+.container {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Custom Scroll Indicator
+   ========================================================================== */
+
 .scroll-indicator {
     position: fixed;
     right: 20px;
@@ -69,7 +342,72 @@ html.dark-mode {
     transform: scale(1.3);
 }
 
-/* Reset & Base */
+/* ==========================================================================
+   Custom Animated Tooltip
+   ========================================================================== */
+
+.github-link {
+    position: relative;
+    cursor: pointer;
+}
+
+.github-link::after {
+    content: "I swear it's mine";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+html.dark-mode .github-link::after {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+.github-link:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+.github-link::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    border: 5px solid transparent;
+    border-top-color: var(--bg-primary);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.github-link:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+/* ==========================================================================
+   Reset & Base Styles
+   ========================================================================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -87,7 +425,7 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     padding: clamp(3rem, 6vw, 5rem) clamp(3rem, 8vw, 8rem);
-    transition: background 0.3s, color 0.3s;
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: -0.3px;
 }
 
@@ -100,19 +438,23 @@ body {
     grid-template-columns: minmax(320px, 450px) minmax(0, 1fr);
     gap: clamp(4rem, 10vw, 12rem);
     align-items: start;
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .main-content {
     padding: 0 clamp(2rem, 4vw, 4rem) 0 0;
 }
 
-/* Header */
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
 .header {
     background: var(--bg-primary);
     color: var(--text-primary);
     padding: 0 clamp(3rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem) 0;
     text-align: left;
-    transition: background 0.3s, border-color 0.3s;
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: sticky;
     top: clamp(3rem, 6vw, 5rem);
     align-self: start;
@@ -124,6 +466,13 @@ body {
     align-items: flex-start;
     margin-bottom: 1rem;
     gap: 1rem;
+}
+
+.header-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .profile {
@@ -140,25 +489,57 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
     flex-shrink: 0;
     color: var(--text-primary);
     font-size: 0.95rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: var(--accent-color);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    z-index: 0;
+}
+
+.theme-toggle:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.theme-toggle i {
+    position: relative;
+    z-index: 1;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .theme-toggle:hover {
     border-color: var(--text-primary);
     background: var(--bg-primary);
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.theme-toggle i {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+html.dark-mode .theme-toggle:hover {
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle .sun-icon {
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.theme-toggle .moon-icon {
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .theme-toggle .moon-icon {
@@ -171,11 +552,120 @@ html.dark-mode .theme-toggle .sun-icon {
 
 html.dark-mode .theme-toggle .moon-icon {
     display: flex;
+    animation: moonGlow 0.5s ease;
+}
+
+@keyframes moonGlow {
+    0% {
+        transform: scale(0.8) rotate(-180deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) rotate(-90deg);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.theme-toggle .sun-icon {
+    animation: sunGlow 0.5s ease;
+}
+
+@keyframes sunGlow {
+    0% {
+        transform: scale(0.8) rotate(180deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) rotate(90deg);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
 }
 
 .location i {
     margin-right: 0.4rem;
     color: var(--accent-color);
+}
+
+/* ==========================================================================
+   Googly Eyes
+   ========================================================================== */
+
+.googly-eyes {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 2rem auto 0;
+    position: relative;
+    padding: 1rem;
+    max-width: fit-content;
+}
+
+.eye {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    border: 3px solid var(--text-primary);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eye:hover {
+    transform: scale(1.1);
+}
+
+.eye.blink {
+    animation: blink 0.15s ease-in-out;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+html.dark-mode .eye {
+    background: var(--bg-secondary);
+    border-color: var(--text-primary);
+}
+
+.pupil {
+    width: 10px;
+    height: 10px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+html.dark-mode .pupil {
+    background: var(--accent-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .header h1 {
@@ -248,7 +738,10 @@ html.dark-mode .theme-toggle .moon-icon {
     color: var(--bg-primary);
 }
 
-/* Download Section */
+/* ==========================================================================
+   Download Section
+   ========================================================================== */
+
 .download-section {
     text-align: left;
     padding: 2rem;
@@ -292,10 +785,13 @@ html.dark-mode .theme-toggle .moon-icon {
     font-size: 0.85rem;
 }
 
-/* Sections */
+/* ==========================================================================
+   Sections
+   ========================================================================== */
+
 .section {
     padding: 0 0 4rem 0;
-    transition: background 0.3s, border-color 0.3s;
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     animation: fadeInUp 0.6s ease-out forwards;
     opacity: 0;
 }
@@ -357,6 +853,7 @@ html.dark-mode .theme-toggle .moon-icon {
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .section[data-label]::before {
@@ -368,9 +865,13 @@ html.dark-mode .theme-toggle .moon-icon {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 1rem;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Skills Grid */
+/* ==========================================================================
+   Skills Grid
+   ========================================================================== */
+
 .skills-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -385,7 +886,7 @@ html.dark-mode .theme-toggle .moon-icon {
     border-radius: 8px;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     animation: fadeInUp 0.6s ease-out forwards;
     opacity: 0;
 }
@@ -432,6 +933,7 @@ html.dark-mode .skills-grid div:hover {
     margin-bottom: 0.75rem;
     font-size: 0.95rem;
     letter-spacing: 0.5px;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .skills-grid p {
@@ -439,9 +941,13 @@ html.dark-mode .skills-grid div:hover {
     font-size: 0.9rem;
     margin: 0;
     line-height: 1.6;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Experience */
+/* ==========================================================================
+   Experience
+   ========================================================================== */
+
 .experience {
     margin-top: 3rem;
 }
@@ -456,6 +962,7 @@ html.dark-mode .skills-grid div:hover {
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-col-header:last-child {
@@ -467,7 +974,7 @@ html.dark-mode .skills-grid div:hover {
     padding-bottom: 4.5rem;
     padding-top: 3rem;
     border-bottom: 1px solid var(--border-color);
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     animation: fadeInUp 0.6s ease-out forwards;
     opacity: 0;
 }
@@ -519,7 +1026,7 @@ html.dark-mode .skills-grid div:hover {
     margin-bottom: 0.5rem;
     letter-spacing: -0.01em;
     line-height: 1.3;
-    transition: color 0.3s ease;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-item:hover .exp-description h3 {
@@ -532,11 +1039,13 @@ html.dark-mode .skills-grid div:hover {
     line-height: 1.6;
     margin-top: 0;
     margin-bottom: 1rem;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-description strong {
     color: var(--text-primary);
     font-weight: 500;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-list {
@@ -555,7 +1064,7 @@ html.dark-mode .skills-grid div:hover {
     position: relative;
     padding-left: 1.5rem;
     line-height: 1.7;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-list li::before {
@@ -565,6 +1074,7 @@ html.dark-mode .skills-grid div:hover {
     color: var(--text-primary);
     font-weight: bold;
     font-size: 1.2em;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-list li:hover {
@@ -582,15 +1092,20 @@ html.dark-mode .skills-grid div:hover {
     color: var(--text-tertiary);
     font-weight: 400;
     white-space: nowrap;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exp-item li {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
     color: var(--text-secondary);
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Extra Skills */
+/* ==========================================================================
+   Extra Skills
+   ========================================================================== */
+
 .extra-skills {
     columns: 1;
     list-style: none;
@@ -608,7 +1123,7 @@ html.dark-mode .skills-grid div:hover {
     font-size: clamp(0.9rem, 1.3vw, 1rem);
     color: var(--text-secondary);
     line-height: 1.7;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .extra-skills li::before {
@@ -618,6 +1133,7 @@ html.dark-mode .skills-grid div:hover {
     color: var(--text-primary);
     font-weight: bold;
     font-size: 1.2em;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .extra-skills li:hover {
@@ -625,17 +1141,23 @@ html.dark-mode .skills-grid div:hover {
     padding-left: 1.8rem;
 }
 
-/* Footer */
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
 footer {
     text-align: left;
     padding: 3rem 0 0 0;
     background: var(--bg-primary);
     color: var(--text-tertiary);
     font-size: clamp(0.8rem, 1.2vw, 0.9rem);
-    transition: background 0.3s, border-color 0.3s;
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Responsive */
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
 @media (max-width: 768px) {
     body {
         padding: 2rem 1.5rem;
@@ -661,6 +1183,11 @@ footer {
         flex-direction: row;
         justify-content: space-between;
         align-items: flex-start;
+    }
+
+    .header-controls {
+        flex-direction: row;
+        gap: 1rem;
     }
 
     .profile {
@@ -741,5 +1268,20 @@ footer {
 
     .extra-skills {
         columns: 1;
+    }
+
+    .googly-eyes {
+        margin: 1.5rem auto 0;
+        gap: 10px;
+    }
+
+    .eye {
+        width: 28px;
+        height: 28px;
+    }
+
+    .pupil {
+        width: 9px;
+        height: 9px;
     }
 }
