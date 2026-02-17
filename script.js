@@ -20,6 +20,7 @@ if (sessionStorage.getItem(SESSION_KEY) === 'true') {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) loadingScreen.style.display = 'none';
 }
+///testing a hook
 
 // Loading Screen
 class LoadingScreenManager {
