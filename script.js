@@ -1,5 +1,4 @@
 
-const THEME_KEY = 'portfolio-dark-mode';
 const SESSION_KEY = 'portfolio-loaded';
 const TYPING_SPEED_MIN = 8;
 const TYPING_SPEED_VARIANCE = 4;
@@ -20,34 +19,6 @@ const PUPIL_RESET_DELAY = 500;
 if (sessionStorage.getItem(SESSION_KEY) === 'true') {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) loadingScreen.style.display = 'none';
-}
-
-// Theme Management
-class ThemeManager {
-    constructor() {
-        this.themeToggle = document.getElementById('theme-toggle');
-        this.html = document.documentElement;
-        this.init();
-    }
-
-    setTheme(isDark) {
-        this.html.classList.toggle('dark-mode', isDark);
-        localStorage.setItem(THEME_KEY, isDark);
-    }
-
-    initTheme() {
-        const saved = localStorage.getItem(THEME_KEY);
-        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-        this.setTheme(saved !== null ? saved === 'true' : prefersDark);
-    }
-
-    init() {
-        this.initTheme();
-        this.themeToggle?.addEventListener('click', () => this.setTheme(!this.html.classList.contains('dark-mode')));
-        window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (localStorage.getItem(THEME_KEY) === null) this.setTheme(e.matches);
-        });
-    }
 }
 
 // Loading Screen
@@ -312,7 +283,6 @@ class GooglyEyes {
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
-    const themeManager = new ThemeManager();
     const loadingManager = new LoadingScreenManager();
     const terminalAnimation = new TerminalAnimation(loadingManager);
     const scrollIndicator = new ScrollIndicator();
