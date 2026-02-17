@@ -56,99 +56,116 @@ class TerminalAnimation {
     constructor(loadingManager) {
         this.terminalContent = document.querySelector('.terminal-content');
         this.loadingManager = loadingManager;
-        this.commands = [
-            'git clone https://github.com/anormiedev/portfolio.git',
-            'cd portfolio',
-            'npm i && npm run dev'
+        this.steps = [
+            {
+                cmd: 'git clone https://github.com/misterbista/portfolio.git',
+                output: [
+                    { text: "Cloning into 'portfolio'...", cls: 'dim', delay: 350 },
+                    { text: 'remote: Enumerating objects: 47, done.', cls: 'dim', delay: 160 },
+                    { text: 'remote: Counting objects: 100% (47/47), done.', cls: 'dim', delay: 120 },
+                    { text: 'remote: Compressing objects: 100% (31/31), done.', cls: 'dim', delay: 200 },
+                    { text: 'Receiving objects: 100% (47/47), 18.4 KiB | 3.2 MiB/s, done.', cls: 'dim', delay: 480 },
+                    { text: 'Resolving deltas: 100% (12/12), done.', cls: 'dim', delay: 220 },
+                ],
+            },
+            {
+                cmd: 'cd portfolio',
+                output: [],
+                changeDir: true,
+            },
+            {
+                cmd: 'npm i && npm run dev',
+                output: [
+                    { text: 'detected 3 file in 0.2s', cls: 'success', delay: 1100 },
+                    { text: '', cls: 'blank', delay: 80 },
+                    { text: '  VITE v5.4.2  ready in 287 ms', cls: 'vite', delay: 220 },
+                    { text: '', cls: 'blank', delay: 50 },
+                    { text: '  ➜  Remote:  https://piyushrajbista.com.np', cls: 'url', delay: 130 },
+                    
+                ],
+            },
         ];
-        this.commandIndex = 0;
+        this.stepIndex = 0;
         this.inGitRepo = false;
         this.currentDir = '~';
     }
 
-    createTypingLine() {
-        const typingLine = document.createElement('div');
-        typingLine.className = 'terminal-line';
+    getPromptHTML() {
         const gitPart = this.inGitRepo ? ' <span class="prompt-git">(main)</span>' : '';
-        typingLine.innerHTML = `<span class="prompt-user">cloud@machine</span> <span class="prompt-dir">${this.currentDir}</span>${gitPart} $ <span class="terminal-text"></span><span class="cursor">|</span>`;
-        return typingLine;
+        return `<span class="prompt-user">user@dev</span> <span class="prompt-dir">${this.currentDir}</span>${gitPart} $ `;
+    }
+
+    createPromptLine() {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.innerHTML = `${this.getPromptHTML()}<span class="terminal-text"></span><span class="cursor">|</span>`;
+        return line;
     }
 
     typeCommand(command, onComplete) {
-        const currentLine = this.terminalContent.lastElementChild;
-        const textSpan = currentLine.querySelector('.terminal-text');
-        let charIndex = 0;
-
-        const typeChar = () => {
-            if (charIndex < command.length) {
-                textSpan.textContent += command[charIndex];
-                charIndex++;
-                setTimeout(typeChar, TYPING_SPEED_MIN + Math.random() * TYPING_SPEED_VARIANCE);
+        const line = this.terminalContent.lastElementChild;
+        const textSpan = line.querySelector('.terminal-text');
+        let i = 0;
+        const type = () => {
+            if (i < command.length) {
+                textSpan.textContent += command[i++];
+                setTimeout(type, TYPING_SPEED_MIN + Math.random() * TYPING_SPEED_VARIANCE);
             } else {
                 setTimeout(onComplete, COMMAND_DELAY);
             }
         };
-
-        setTimeout(typeChar, 30);
+        setTimeout(type, 30);
     }
 
-    processNextCommand() {
-        if (this.commandIndex < this.commands.length) {
-            const command = this.commands[this.commandIndex];
+    showOutputLines(lines, index, onAllDone) {
+        if (index >= lines.length) { onAllDone(); return; }
+        const { text, cls = '', delay = 80 } = lines[index];
+        setTimeout(() => {
+            const line = document.createElement('div');
+            line.className = `terminal-line ${cls}`;
+            line.textContent = text;
+            this.terminalContent.appendChild(line);
+            this.showOutputLines(lines, index + 1, onAllDone);
+        }, delay);
+    }
 
-            this.typeCommand(command, () => {
-                const currentLine = this.terminalContent.lastElementChild;
-                const gitPart = this.inGitRepo ? ' <span class="prompt-git">(main)</span>' : '';
-                currentLine.innerHTML = `<span class="prompt-user">cloud@machine</span> <span class="prompt-dir">${this.currentDir}</span>${gitPart} $ ${command}`;
+    processStep() {
+        if (this.stepIndex >= this.steps.length) {
+            setTimeout(() => this.loadingManager.hide(), 800);
+            return;
+        }
+        const step = this.steps[this.stepIndex];
+        this.typeCommand(step.cmd, () => {
+            const currentLine = this.terminalContent.lastElementChild;
+            currentLine.innerHTML = `${this.getPromptHTML()}${step.cmd}`;
 
-                if (command === 'cd portfolio') {
-                    this.inGitRepo = true;
-                    this.currentDir = '~/portfolio';
-                }
+            if (step.changeDir) {
+                this.inGitRepo = true;
+                this.currentDir = '~/portfolio';
+            }
 
-                this.commandIndex++;
+            this.stepIndex++;
 
-                if (this.commandIndex < this.commands.length) {
-                    const newTypingLine = this.createTypingLine();
-                    this.terminalContent.appendChild(newTypingLine);
-                    setTimeout(() => this.processNextCommand(), LINE_DELAY);
+            this.showOutputLines(step.output, 0, () => {
+                if (this.stepIndex < this.steps.length) {
+                    setTimeout(() => {
+                        this.terminalContent.appendChild(this.createPromptLine());
+                        setTimeout(() => this.processStep(), LINE_DELAY);
+                    }, 200);
                 } else {
-                    this.showLoadingSequence();
+                    setTimeout(() => this.loadingManager.hide(), 800);
                 }
             });
-        }
-    }
-
-    showLoadingSequence() {
-        setTimeout(() => {
-            const loadingLine = document.createElement('div');
-            loadingLine.className = 'terminal-line output loading';
-            loadingLine.textContent = 'Loading portfolio';
-            this.terminalContent.appendChild(loadingLine);
-
-            let dots = 0;
-            const loadingInterval = setInterval(() => {
-                dots = (dots + 1) % 4;
-                loadingLine.textContent = 'Loading portfolio' + '.'.repeat(dots);
-            }, LOADING_DOTS_INTERVAL);
-
-            setTimeout(() => {
-                clearInterval(loadingInterval);
-                loadingLine.textContent = 'Loading portfolio... Done!';
-
-                setTimeout(() => {
-                    loadingLine.textContent = 'Portfolio ready!';
-                    setTimeout(() => this.loadingManager.hide(), HIDE_LOADING_DELAY);
-                }, FINAL_MESSAGE_DELAY);
-            }, LOADING_DURATION);
-        }, LOADING_SEQUENCE_DELAY);
+        });
     }
 
     start() {
-        const initialTypingLine = this.createTypingLine();
         this.terminalContent.innerHTML = '';
-        this.terminalContent.appendChild(initialTypingLine);
-        this.processNextCommand();
+        this.stepIndex = 0;
+        this.inGitRepo = false;
+        this.currentDir = '~';
+        this.terminalContent.appendChild(this.createPromptLine());
+        this.processStep();
     }
 }
 

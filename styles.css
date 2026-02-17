@@ -148,6 +148,35 @@
     padding-left: 16px;
 }
 
+.terminal-line.dim {
+    color: #4b5563;
+    margin-top: 3px;
+}
+
+.terminal-line.success {
+    color: #4ade80;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+.terminal-line.vite {
+    color: #a78bfa;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.terminal-line.url {
+    color: #38bdf8;
+    margin-top: 2px;
+}
+
+.terminal-line.blank {
+    line-height: 0.5;
+    color: transparent;
+    user-select: none;
+    pointer-events: none;
+}
+
 .cursor {
     animation: blink 1s infinite;
 }
