@@ -299,6 +299,31 @@ html {
     scroll-behavior: smooth;
 }
 
+/* ==========================================================================
+   Viewport Edge Fade
+   ========================================================================== */
+
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 6rem;
+    pointer-events: none;
+    z-index: 50;
+}
+
+body::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--bg-primary), transparent);
+}
+
+body::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg-primary), transparent);
+}
+
 body {
     font-family: "Geist", sans-serif;
     font-optical-sizing: auto;
