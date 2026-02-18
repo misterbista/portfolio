@@ -2,7 +2,6 @@ import { supabase, formatDate } from "@/lib/supabase";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
 import BlogNav from "@/components/blog-nav";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -49,9 +48,7 @@ export default async function PostPage({ params }: Props) {
     notFound();
   }
 
-  const htmlContent = DOMPurify.sanitize(
-    marked.parse(post.content) as string
-  );
+  const htmlContent = marked.parse(post.content) as string;
 
   return (
     <div className="font-mono max-w-[720px] mx-auto min-h-screen" style={{ padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)" }}>
