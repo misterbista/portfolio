@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { supabase, formatDate } from "@/lib/supabase";
 import type { Metadata } from "next";
 import BlogNav from "@/components/blog-nav";
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
+  noStore();
+
   const { data: posts } = await supabase
     .from("posts")
     .select("title, slug, excerpt, created_at")
