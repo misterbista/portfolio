@@ -26,7 +26,7 @@ export default function PostList({ onEdit, onNew }: Props) {
     setLoading(true);
     const { data, error } = await supabase
       .from("posts")
-      .select("*")
+      .select("*, categories(name, slug)")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -94,6 +94,9 @@ export default function PostList({ onEdit, onNew }: Props) {
                 Title
               </th>
               <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden md:table-cell">
+                Category
+              </th>
+              <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden md:table-cell">
                 Status
               </th>
               <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden md:table-cell">
@@ -109,6 +112,15 @@ export default function PostList({ onEdit, onNew }: Props) {
               <tr key={post.id}>
                 <td className="py-2.5 px-3 text-foreground border-b border-border">
                   {post.title}
+                </td>
+                <td className="py-2.5 px-3 border-b border-border hidden md:table-cell">
+                  {post.categories ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-accent text-accent-foreground border border-border">
+                      {post.categories.name}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">---</span>
+                  )}
                 </td>
                 <td className="py-2.5 px-3 border-b border-border hidden md:table-cell">
                   <span

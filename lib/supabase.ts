@@ -5,6 +5,13 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+};
+
 export type Post = {
   id: string;
   title: string;
@@ -14,6 +21,8 @@ export type Post = {
   published: boolean;
   created_at: string;
   updated_at: string;
+  category_id: string | null;
+  categories?: Category | null;
 };
 
 export function formatDate(isoString: string) {

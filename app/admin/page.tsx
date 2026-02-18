@@ -5,6 +5,7 @@ import BlogNav from "@/components/blog-nav";
 import AuthGate from "@/components/admin/auth-gate";
 import PostList from "@/components/admin/post-list";
 import PostEditor from "@/components/admin/post-editor";
+import CategoryManager from "@/components/admin/category-manager";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminPage() {
@@ -62,10 +63,13 @@ export default function AdminPage() {
             )}
 
             {view === "list" ? (
+              <>
+              <CategoryManager />
               <PostList
                 onEdit={(id) => openEditor(id)}
                 onNew={() => openEditor(null)}
               />
+              </>
             ) : (
               <PostEditor postId={editingPostId} onBack={backToList} />
             )}

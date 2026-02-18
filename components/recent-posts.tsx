@@ -4,15 +4,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
+type PostWithCategory = {
+  title: string;
+  slug: string;
+  created_at: string;
+  categories: { name: string; slug: string } | null;
+};
+
 export default async function RecentPosts() {
   noStore();
 
-  const { data: posts } = await supabase
+  const { data } = await supabase
     .from("posts")
-    .select("title, slug, created_at")
+    .select("title, slug, created_at, categories(name, slug)")
     .eq("published", true)
     .order("created_at", { ascending: false })
     .limit(5);
+
+  const posts = data as PostWithCategory[] | null;
 
   return (
     <section className="mt-8 pt-6 border-t border-border">
@@ -32,9 +41,16 @@ export default async function RecentPosts() {
                 <span className="text-foreground text-[0.825rem] font-medium leading-snug">
                   {post.title}
                 </span>
-                <span className="text-muted-foreground text-[0.7rem]">
-                  {formatDate(post.created_at)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground text-[0.7rem]">
+                    {formatDate(post.created_at)}
+                  </span>
+                  {post.categories && !Array.isArray(post.categories) && (
+                    <span className="text-[0.6rem] px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground border border-border">
+                      {post.categories.name}
+                    </span>
+                  )}
+                </div>
               </Link>
             </li>
           ))

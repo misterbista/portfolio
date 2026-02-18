@@ -1,4 +1,4 @@
-import { supabase, formatDate } from "@/lib/supabase";
+import { supabase, formatDate, type Post } from "@/lib/supabase";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { marked } from "marked";
@@ -6,6 +6,10 @@ import BlogNav from "@/components/blog-nav";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+
+type PostWithCategory = Post & {
+  categories: { name: string; slug: string } | null;
+};
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -37,12 +41,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const { data: post } = await supabase
+  const { data } = await supabase
     .from("posts")
-    .select("*")
+    .select("*, categories(name, slug)")
     .eq("slug", slug)
     .eq("published", true)
     .single();
+
+  const post = data as PostWithCategory | null;
 
   if (!post) {
     notFound();
@@ -66,8 +72,18 @@ export default async function PostPage({ params }: Props) {
           <h1 className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold text-foreground tracking-tight leading-tight mb-3">
             {post.title}
           </h1>
-          <div className="text-muted-foreground text-[0.825rem]">
-            {formatDate(post.created_at)}
+          <div className="flex items-center gap-2.5 text-[0.825rem]">
+            <span className="text-muted-foreground">
+              {formatDate(post.created_at)}
+            </span>
+            {post.categories && (
+              <Link
+                href={`/blog?category=${post.categories.slug}`}
+                className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground border border-border no-underline transition-colors hover:bg-muted"
+              >
+                {post.categories.name}
+              </Link>
+            )}
           </div>
         </header>
         <div

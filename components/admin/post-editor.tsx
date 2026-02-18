@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase, generateSlug, type Post } from "@/lib/supabase";
+import { supabase, generateSlug, type Post, type Category } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -21,6 +21,8 @@ export default function PostEditor({ postId, onBack }: Props) {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [published, setPublished] = useState(false);
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [metaOpen, setMetaOpen] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{
     text: string;
@@ -28,6 +30,11 @@ export default function PostEditor({ postId, onBack }: Props) {
   } | null>(null);
 
   useEffect(() => {
+    supabase
+      .from("categories")
+      .select("*")
+      .order("name")
+      .then(({ data }) => setCategories(data || []));
     if (postId) loadPost(postId);
   }, [postId]);
 
@@ -48,6 +55,7 @@ export default function PostEditor({ postId, onBack }: Props) {
     setExcerpt(post.excerpt);
     setContent(post.content);
     setPublished(post.published);
+    setCategoryId(post.category_id);
   }
 
   function handleTitleChange(value: string) {
@@ -71,6 +79,7 @@ export default function PostEditor({ postId, onBack }: Props) {
       excerpt: excerpt.trim(),
       content,
       published,
+      category_id: categoryId,
       updated_at: new Date().toISOString(),
     };
 
@@ -157,11 +166,11 @@ export default function PostEditor({ postId, onBack }: Props) {
           icon={metaOpen ? faChevronUp : faChevronDown}
           className="text-[0.55rem]"
         />
-        {metaOpen ? "Hide details" : "Slug & excerpt"}
+        {metaOpen ? "Hide details" : "Details"}
       </button>
 
       {metaOpen && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 pb-5 border-b border-border">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 pb-5 border-b border-border">
           <input
             type="text"
             value={slug}
@@ -176,6 +185,18 @@ export default function PostEditor({ postId, onBack }: Props) {
             placeholder="Short excerpt for listings"
             className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
           />
+          <select
+            value={categoryId || ""}
+            onChange={(e) => setCategoryId(e.target.value || null)}
+            className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+          >
+            <option value="">Uncategorized</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
