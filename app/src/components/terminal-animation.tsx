@@ -130,7 +130,7 @@ export default function TerminalAnimation({
       const textSpan = promptLine?.querySelector(
         ".terminal-text"
       ) as HTMLSpanElement | null;
-      if (!textSpan) return;
+      if (!promptLine || !textSpan) return;
 
       if (step.typo) {
         await typeText(textSpan, step.typo.wrongText, (i) =>
