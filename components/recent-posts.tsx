@@ -1,9 +1,12 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { supabase, formatDate } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 export default async function RecentPosts() {
+  noStore();
+
   const { data: posts } = await supabase
     .from("posts")
     .select("title, slug, created_at")
