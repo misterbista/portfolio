@@ -17,7 +17,7 @@ export default async function BlogPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="blog-mono font-mono max-w-[720px] mx-auto min-h-screen" style={{ padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)" }}>
+    <div className="font-mono max-w-[720px] mx-auto min-h-screen" style={{ padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)" }}>
       <BlogNav showBlogLink={false} />
 
       <div className="mb-10">

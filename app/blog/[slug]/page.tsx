@@ -54,7 +54,7 @@ export default async function PostPage({ params }: Props) {
   );
 
   return (
-    <div className="blog-mono font-mono max-w-[720px] mx-auto min-h-screen" style={{ padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)" }}>
+    <div className="font-mono max-w-[720px] mx-auto min-h-screen" style={{ padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)" }}>
       <BlogNav showBlogLink={false} />
       <Link
         href="/blog"

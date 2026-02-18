@@ -25,16 +25,11 @@ export default function Home() {
       <div className="home-viewport-mask">
         <div className="animate-fade-in-up">
           <div
-            className="w-full min-h-screen grid gap-x-[clamp(4rem,10vw,12rem)] items-start"
-            style={{
-              gridTemplateColumns: "minmax(320px, 450px) minmax(0, 1fr)",
-              padding: "clamp(3rem, 6vw, 5rem) clamp(3rem, 8vw, 8rem)",
-            }}
+            className="w-full min-h-screen grid gap-x-[clamp(4rem,10vw,12rem)] items-start grid-cols-1 lg:grid-cols-[minmax(320px,450px)_minmax(0,1fr)] p-[clamp(2rem,6vw,5rem)_clamp(1.5rem,8vw,8rem)]"
           >
           {/* Header / Sidebar */}
           <header
-            className="sticky self-start"
-            style={{ top: "clamp(3rem, 6vw, 5rem)" }}
+            className="self-start lg:sticky lg:top-[clamp(3rem,6vw,5rem)]"
           >
             <div className="flex justify-between items-start mb-4 gap-4">
               <div className="flex-1">
