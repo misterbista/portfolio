@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://piyushrajbista.com.np"),
   title: "Piyushraj Bista | Full Stack Developer",
   description:
     "Piyushraj Bista - Full Stack Developer specializing in modern web technologies. Explore my portfolio, skills, experience, and projects.",
@@ -28,16 +29,16 @@ export const metadata: Metadata = {
       "Full Stack Developer portfolio showcasing skills in web development, projects, and experience.",
     url: "https://piyushrajbista.com.np",
     type: "website",
-    images: ["/favicon.png"],
+    images: ["/favicon.ico"],
   },
   twitter: {
     card: "summary",
     title: "Piyushraj Bista | Full Stack Developer",
     description:
       "Full Stack Developer portfolio showcasing skills in web development, projects, and experience.",
-    images: ["/favicon.png"],
+    images: ["/favicon.ico"],
   },
-  icons: { icon: "/favicon.png" },
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({
