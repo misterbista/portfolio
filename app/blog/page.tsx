@@ -210,9 +210,11 @@ function renderPage({
   allTags: { name: string; slug: string }[] | null;
   seriesWithCounts: SeriesWithCount[];
 }) {
+  const hasSeries = seriesWithCounts.length > 0;
+
   return (
     <div
-      className="font-mono max-w-[720px] mx-auto min-h-screen"
+      className={`font-mono mx-auto min-h-screen ${hasSeries ? "max-w-[960px]" : "max-w-[720px]"}`}
       style={{
         padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)",
       }}
@@ -228,244 +230,257 @@ function renderPage({
         </p>
       </div>
 
-      {/* Search */}
-      <form method="GET" action="/blog" className="mb-5">
-        {category && <input type="hidden" name="category" value={category} />}
-        {tag && <input type="hidden" name="tag" value={tag} />}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <FontAwesomeIcon
-              icon={faMagnifyingGlass}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs"
-            />
-            <input
-              type="text"
-              name="search"
-              defaultValue={search || ""}
-              placeholder="Search posts..."
-              className="w-full pl-8 pr-3 py-2 bg-secondary text-foreground border border-border rounded-md text-xs transition-colors focus:outline-none focus:border-muted-foreground"
-            />
-          </div>
-          {search && (
-            <Link
-              href={buildUrl({ category, tag })}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground border border-border rounded-md no-underline transition-colors hover:text-foreground hover:bg-muted"
-            >
-              <FontAwesomeIcon icon={faXmark} />
-              Clear
-            </Link>
-          )}
-        </div>
-      </form>
-
-      {/* Category filter pills */}
-      {categories && categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Link
-            href={buildUrl({ search, tag })}
-            className={`text-xs px-3 py-1.5 rounded-full border no-underline transition-colors ${
-              !category
-                ? "bg-foreground text-background border-foreground"
-                : "bg-transparent text-muted-foreground border-border hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            All
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={buildUrl({ category: cat.slug, search, tag })}
-              className={`text-xs px-3 py-1.5 rounded-full border no-underline transition-colors ${
-                category === cat.slug
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-transparent text-muted-foreground border-border hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {/* Tag filter pills */}
-      {allTags && allTags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-8">
-          {tag && (
-            <Link
-              href={buildUrl({ search, category })}
-              className="text-[0.675rem] px-2 py-0.5 rounded-full border border-border no-underline transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
-            >
-              <FontAwesomeIcon icon={faXmark} className="mr-1 text-[0.55rem]" />
-              Clear tag
-            </Link>
-          )}
-          {allTags.map((t) => (
-            <Link
-              key={t.slug}
-              href={buildUrl({ tag: t.slug, search, category })}
-              className={`text-[0.675rem] px-2 py-0.5 rounded-full border no-underline transition-colors ${
-                tag === t.slug
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-secondary text-muted-foreground border-border hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              #{t.name}
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {/* Series cards */}
-      {seriesWithCounts.length > 0 && !search && !category && !tag && (
-        <div className="mb-10">
-          <h2 className="text-[0.7rem] text-muted-foreground font-medium uppercase tracking-wider mb-3">
-            <FontAwesomeIcon icon={faLayerGroup} className="mr-1.5 text-[0.6rem]" />
-            Series
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {seriesWithCounts.map((s) => (
-              <Link
-                key={s.slug}
-                href={`/blog/series/${s.slug}`}
-                className="group flex flex-col gap-1.5 p-4 rounded-lg border border-border bg-secondary/20 no-underline transition-colors hover:bg-secondary/50 hover:border-muted-foreground"
-              >
-                <span className="text-foreground text-sm font-medium group-hover:text-foreground">
-                  {s.name}
-                </span>
-                {s.description && (
-                  <span className="text-muted-foreground text-[0.75rem] leading-snug line-clamp-2">
-                    {s.description}
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1 text-muted-foreground text-[0.7rem] mt-0.5">
-                  {s.post_count} {s.post_count === 1 ? "post" : "posts"}
-                  <FontAwesomeIcon icon={faArrowRight} className="text-[0.55rem]" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {posts.length === 0 ? (
-        <p className="text-muted-foreground text-[0.925rem] text-center py-12">
-          {search || category || tag
-            ? "No posts found."
-            : "No posts yet. Check back soon!"}
-        </p>
-      ) : (
-        <>
-          <div className="flex flex-col gap-2">
-            {posts.map((post) => {
-              const readingTime = calculateReadingTime(post.content);
-              const tags: Tag[] =
-                post.post_tags?.map((pt) => pt.tags) || [];
-
-              return (
-                <div
-                  key={post.slug}
-                  className="border-b border-border pb-6 mb-4 last:border-b-0"
+      {/* Two-column layout: search+posts left, series right */}
+      <div className={hasSeries ? "flex flex-col lg:flex-row gap-10" : ""}>
+        {/* Posts column */}
+        <div className={hasSeries ? "flex-1 min-w-0" : ""}>
+          {/* Search */}
+          <form method="GET" action="/blog" className="mb-5">
+            {category && <input type="hidden" name="category" value={category} />}
+            {tag && <input type="hidden" name="tag" value={tag} />}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <FontAwesomeIcon
+                  icon={faMagnifyingGlass}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs"
+                />
+                <input
+                  type="text"
+                  name="search"
+                  defaultValue={search || ""}
+                  placeholder="Search posts..."
+                  className="w-full pl-8 pr-3 py-2 bg-secondary text-foreground border border-border rounded-md text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+                />
+              </div>
+              {search && (
+                <Link
+                  href={buildUrl({ category, tag })}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground border border-border rounded-md no-underline transition-colors hover:text-foreground hover:bg-muted"
                 >
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="block no-underline group"
-                  >
-                    <h2 className="text-lg font-semibold text-foreground leading-snug mb-1.5 transition-colors group-hover:text-muted-foreground">
-                      {post.title}
-                    </h2>
-                    {post.excerpt && (
-                      <p className="text-muted-foreground text-sm leading-normal mb-2">
-                        {post.excerpt}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="text-muted-foreground text-[0.775rem]">
-                        {formatDate(post.created_at)}
-                      </span>
-                      <span className="text-muted-foreground text-[0.6rem]">
-                        &middot;
-                      </span>
-                      <span className="text-muted-foreground text-[0.775rem]">
-                        {readingTime} min read
-                      </span>
-                      {post.view_count > 0 && (
-                        <>
+                  <FontAwesomeIcon icon={faXmark} />
+                  Clear
+                </Link>
+              )}
+            </div>
+          </form>
+
+          {/* Category filter pills */}
+          {categories && categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Link
+                href={buildUrl({ search, tag })}
+                className={`text-xs px-3 py-1.5 rounded-full border no-underline transition-colors ${
+                  !category
+                    ? "bg-foreground text-background border-foreground"
+                    : "bg-transparent text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                All
+              </Link>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={buildUrl({ category: cat.slug, search, tag })}
+                  className={`text-xs px-3 py-1.5 rounded-full border no-underline transition-colors ${
+                    category === cat.slug
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-transparent text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Tag filter pills */}
+          {allTags && allTags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-8">
+              {tag && (
+                <Link
+                  href={buildUrl({ search, category })}
+                  className="text-[0.675rem] px-2 py-0.5 rounded-full border border-border no-underline transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
+                >
+                  <FontAwesomeIcon icon={faXmark} className="mr-1 text-[0.55rem]" />
+                  Clear tag
+                </Link>
+              )}
+              {allTags.map((t) => (
+                <Link
+                  key={t.slug}
+                  href={buildUrl({ tag: t.slug, search, category })}
+                  className={`text-[0.675rem] px-2 py-0.5 rounded-full border no-underline transition-colors ${
+                    tag === t.slug
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-secondary text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  #{t.name}
+                </Link>
+              ))}
+            </div>
+          )}
+          {posts.length === 0 ? (
+            <p className="text-muted-foreground text-[0.925rem] text-center py-12">
+              {search || category || tag
+                ? "No posts found."
+                : "No posts yet. Check back soon!"}
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-col gap-2">
+                {posts.map((post) => {
+                  const readingTime = calculateReadingTime(post.content);
+                  const tags: Tag[] =
+                    post.post_tags?.map((pt) => pt.tags) || [];
+
+                  return (
+                    <div
+                      key={post.slug}
+                      className="border-b border-border pb-6 mb-4 last:border-b-0"
+                    >
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="block no-underline group"
+                      >
+                        <h2 className="text-lg font-semibold text-foreground leading-snug mb-1.5 transition-colors group-hover:text-muted-foreground">
+                          {post.title}
+                        </h2>
+                        {post.excerpt && (
+                          <p className="text-muted-foreground text-sm leading-normal mb-2">
+                            {post.excerpt}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <span className="text-muted-foreground text-[0.775rem]">
+                            {formatDate(post.created_at)}
+                          </span>
                           <span className="text-muted-foreground text-[0.6rem]">
                             &middot;
                           </span>
                           <span className="text-muted-foreground text-[0.775rem]">
-                            <FontAwesomeIcon
-                              icon={faEye}
-                              className="text-[0.6rem] mr-1"
-                            />
-                            {post.view_count.toLocaleString()}
+                            {readingTime} min read
                           </span>
-                        </>
-                      )}
-                      {post.categories && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground border border-border">
-                          {post.categories.name}
-                        </span>
+                          {post.view_count > 0 && (
+                            <>
+                              <span className="text-muted-foreground text-[0.6rem]">
+                                &middot;
+                              </span>
+                              <span className="text-muted-foreground text-[0.775rem]">
+                                <FontAwesomeIcon
+                                  icon={faEye}
+                                  className="text-[0.6rem] mr-1"
+                                />
+                                {post.view_count.toLocaleString()}
+                              </span>
+                            </>
+                          )}
+                          {post.categories && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground border border-border">
+                              {post.categories.name}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                      {tags.length > 0 && (
+                        <div className="mt-2">
+                          <TagBadges tags={tags} />
+                        </div>
                       )}
                     </div>
-                  </Link>
-                  {tags.length > 0 && (
-                    <div className="mt-2">
-                      <TagBadges tags={tags} />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
 
-          {totalPages > 1 && (
-            <nav className="flex items-center justify-between mt-10 pt-6 border-t border-border">
-              {currentPage > 1 ? (
-                <Link
-                  href={buildUrl({
-                    page: String(currentPage - 1),
-                    search,
-                    category,
-                    tag,
-                  })}
-                  className="inline-flex items-center gap-1.5 text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
-                >
-                  <FontAwesomeIcon
-                    icon={faChevronLeft}
-                    className="text-[0.6rem]"
-                  />
-                  Prev
-                </Link>
-              ) : (
-                <span />
+              {totalPages > 1 && (
+                <nav className="flex items-center justify-between mt-10 pt-6 border-t border-border">
+                  {currentPage > 1 ? (
+                    <Link
+                      href={buildUrl({
+                        page: String(currentPage - 1),
+                        search,
+                        category,
+                        tag,
+                      })}
+                      className="inline-flex items-center gap-1.5 text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
+                    >
+                      <FontAwesomeIcon
+                        icon={faChevronLeft}
+                        className="text-[0.6rem]"
+                      />
+                      Prev
+                    </Link>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="text-muted-foreground text-xs">
+                    {currentPage} / {totalPages}
+                  </span>
+                  {currentPage < totalPages ? (
+                    <Link
+                      href={buildUrl({
+                        page: String(currentPage + 1),
+                        search,
+                        category,
+                        tag,
+                      })}
+                      className="inline-flex items-center gap-1.5 text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
+                    >
+                      Next
+                      <FontAwesomeIcon
+                        icon={faChevronRight}
+                        className="text-[0.6rem]"
+                      />
+                    </Link>
+                  ) : (
+                    <span />
+                  )}
+                </nav>
               )}
-              <span className="text-muted-foreground text-xs">
-                {currentPage} / {totalPages}
-              </span>
-              {currentPage < totalPages ? (
-                <Link
-                  href={buildUrl({
-                    page: String(currentPage + 1),
-                    search,
-                    category,
-                    tag,
-                  })}
-                  className="inline-flex items-center gap-1.5 text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
-                >
-                  Next
-                  <FontAwesomeIcon
-                    icon={faChevronRight}
-                    className="text-[0.6rem]"
-                  />
-                </Link>
-              ) : (
-                <span />
-              )}
-            </nav>
+            </>
           )}
-        </>
-      )}
+        </div>
+
+        {/* Series sidebar */}
+        {hasSeries && (
+          <aside className="w-full lg:w-[220px] shrink-0">
+            <div className="lg:sticky lg:top-8">
+              <h2 className="text-[0.7rem] text-muted-foreground font-medium uppercase tracking-wider mb-3">
+                <FontAwesomeIcon
+                  icon={faLayerGroup}
+                  className="mr-1.5 text-[0.6rem]"
+                />
+                Series
+              </h2>
+              <div className="flex flex-col gap-2.5">
+                {seriesWithCounts.map((s) => (
+                  <Link
+                    key={s.slug}
+                    href={`/blog/series/${s.slug}`}
+                    className="group flex flex-col gap-1 p-3 rounded-lg border border-border bg-secondary/20 no-underline transition-colors hover:bg-secondary/50 hover:border-muted-foreground"
+                  >
+                    <span className="text-foreground text-[0.8rem] font-medium">
+                      {s.name}
+                    </span>
+                    {s.description && (
+                      <span className="text-muted-foreground text-[0.7rem] leading-snug line-clamp-2">
+                        {s.description}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1 text-muted-foreground text-[0.65rem] mt-0.5">
+                      {s.post_count} {s.post_count === 1 ? "post" : "posts"}
+                      <FontAwesomeIcon
+                        icon={faArrowRight}
+                        className="text-[0.5rem]"
+                      />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </aside>
+        )}
+      </div>
 
       <footer className="mt-16 pt-8 border-t border-border text-muted-foreground text-xs">
         <p>&copy; 2026 Piyushraj Bista. All rights reserved.</p>
