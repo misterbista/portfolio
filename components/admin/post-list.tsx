@@ -5,13 +5,18 @@ import { supabase, formatDate, type Post } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
 
+type PostWithJoins = Post & {
+  categories?: { name: string } | null;
+  series?: { name: string } | null;
+};
+
 type Props = {
   onEdit: (id: string) => void;
   onNew: () => void;
 };
 
 export default function PostList({ onEdit, onNew }: Props) {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostWithJoins[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState<{
     text: string;
@@ -26,7 +31,7 @@ export default function PostList({ onEdit, onNew }: Props) {
     setLoading(true);
     const { data, error } = await supabase
       .from("posts")
-      .select("*, categories(name, slug)")
+      .select("*, categories(name), series(name)")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -34,7 +39,7 @@ export default function PostList({ onEdit, onNew }: Props) {
       setLoading(false);
       return;
     }
-    setPosts(data || []);
+    setPosts((data as PostWithJoins[]) || []);
     setLoading(false);
   }
 
@@ -96,8 +101,14 @@ export default function PostList({ onEdit, onNew }: Props) {
               <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden md:table-cell">
                 Category
               </th>
+              <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden lg:table-cell">
+                Series
+              </th>
               <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden md:table-cell">
                 Status
+              </th>
+              <th className="text-right py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden lg:table-cell">
+                Views
               </th>
               <th className="text-left py-2.5 px-3 text-muted-foreground font-medium text-xs uppercase tracking-wider border-b border-border hidden md:table-cell">
                 Date
@@ -122,6 +133,15 @@ export default function PostList({ onEdit, onNew }: Props) {
                     <span className="text-xs text-muted-foreground">---</span>
                   )}
                 </td>
+                <td className="py-2.5 px-3 border-b border-border hidden lg:table-cell">
+                  {post.series ? (
+                    <span className="text-xs text-muted-foreground">
+                      {post.series.name}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">---</span>
+                  )}
+                </td>
                 <td className="py-2.5 px-3 border-b border-border hidden md:table-cell">
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -132,6 +152,9 @@ export default function PostList({ onEdit, onNew }: Props) {
                   >
                     {post.published ? "Published" : "Draft"}
                   </span>
+                </td>
+                <td className="py-2.5 px-3 border-b border-border hidden lg:table-cell text-right text-muted-foreground text-xs font-mono">
+                  {post.view_count.toLocaleString()}
                 </td>
                 <td className="py-2.5 px-3 border-b border-border hidden md:table-cell text-muted-foreground">
                   {formatDate(post.created_at)}

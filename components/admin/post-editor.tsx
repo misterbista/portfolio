@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase, generateSlug, type Post, type Category } from "@/lib/supabase";
+import {
+  supabase,
+  generateSlug,
+  type Post,
+  type Category,
+  type Series,
+  type Tag,
+} from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -9,6 +16,7 @@ import {
   faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
 import MDEditor from "@uiw/react-md-editor";
+import TagInput from "./tag-input";
 
 type Props = {
   postId: string | null;
@@ -22,7 +30,11 @@ export default function PostEditor({ postId, onBack }: Props) {
   const [content, setContent] = useState("");
   const [published, setPublished] = useState(false);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [seriesId, setSeriesId] = useState<string | null>(null);
+  const [seriesOrder, setSeriesOrder] = useState<number | null>(null);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [metaOpen, setMetaOpen] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{
     text: string;
@@ -30,18 +42,20 @@ export default function PostEditor({ postId, onBack }: Props) {
   } | null>(null);
 
   useEffect(() => {
-    supabase
-      .from("categories")
-      .select("*")
-      .order("name")
-      .then(({ data }) => setCategories(data || []));
+    Promise.all([
+      supabase.from("categories").select("*").order("name"),
+      supabase.from("series").select("*").order("name"),
+    ]).then(([catRes, seriesRes]) => {
+      setCategories(catRes.data || []);
+      setSeriesList(seriesRes.data || []);
+    });
     if (postId) loadPost(postId);
   }, [postId]);
 
   async function loadPost(id: string) {
     const { data, error } = await supabase
       .from("posts")
-      .select("*")
+      .select("*, post_tags(tags(id, name, slug, created_at))")
       .eq("id", id)
       .single();
 
@@ -49,13 +63,16 @@ export default function PostEditor({ postId, onBack }: Props) {
       showStatus("Failed to load post.", "error");
       return;
     }
-    const post = data as Post;
+    const post = data as Post & { post_tags?: { tags: Tag }[] };
     setTitle(post.title);
     setSlug(post.slug);
     setExcerpt(post.excerpt);
     setContent(post.content);
     setPublished(post.published);
     setCategoryId(post.category_id);
+    setSeriesId(post.series_id);
+    setSeriesOrder(post.series_order);
+    setSelectedTags(post.post_tags?.map((pt) => pt.tags) || []);
   }
 
   function handleTitleChange(value: string) {
@@ -80,16 +97,49 @@ export default function PostEditor({ postId, onBack }: Props) {
       content,
       published,
       category_id: categoryId,
+      series_id: seriesId,
+      series_order: seriesOrder,
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = postId
-      ? await supabase.from("posts").update(postData).eq("id", postId)
-      : await supabase.from("posts").insert(postData);
+    let savedPostId = postId;
 
-    if (error) {
-      showStatus("Failed to save: " + error.message, "error");
-      return;
+    if (postId) {
+      const { error } = await supabase
+        .from("posts")
+        .update(postData)
+        .eq("id", postId);
+      if (error) {
+        showStatus("Failed to save: " + error.message, "error");
+        return;
+      }
+    } else {
+      const { data, error } = await supabase
+        .from("posts")
+        .insert(postData)
+        .select("id")
+        .single();
+      if (error || !data) {
+        showStatus(
+          "Failed to save: " + (error?.message || "Unknown error"),
+          "error"
+        );
+        return;
+      }
+      savedPostId = data.id;
+    }
+
+    // Sync tags
+    if (savedPostId) {
+      await supabase.from("post_tags").delete().eq("post_id", savedPostId);
+      if (selectedTags.length > 0) {
+        await supabase.from("post_tags").insert(
+          selectedTags.map((t) => ({
+            post_id: savedPostId!,
+            tag_id: t.id,
+          }))
+        );
+      }
     }
 
     showStatus(postId ? "Post updated." : "Post created.", "success");
@@ -170,33 +220,64 @@ export default function PostEditor({ postId, onBack }: Props) {
       </button>
 
       {metaOpen && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 pb-5 border-b border-border">
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="post-url-slug"
-            className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
-          />
-          <input
-            type="text"
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            placeholder="Short excerpt for listings"
-            className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
-          />
-          <select
-            value={categoryId || ""}
-            onChange={(e) => setCategoryId(e.target.value || null)}
-            className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
-          >
-            <option value="">Uncategorized</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col gap-3 mb-5 pb-5 border-b border-border">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="post-url-slug"
+              className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+            />
+            <input
+              type="text"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              placeholder="Short excerpt for listings"
+              className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+            />
+            <select
+              value={categoryId || ""}
+              onChange={(e) => setCategoryId(e.target.value || null)}
+              className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+            >
+              <option value="">Uncategorized</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <select
+              value={seriesId || ""}
+              onChange={(e) => setSeriesId(e.target.value || null)}
+              className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+            >
+              <option value="">No series</option>
+              {seriesList.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {seriesId && (
+              <input
+                type="number"
+                value={seriesOrder ?? ""}
+                onChange={(e) =>
+                  setSeriesOrder(
+                    e.target.value ? parseInt(e.target.value, 10) : null
+                  )
+                }
+                placeholder="Series order (1, 2, 3...)"
+                min={1}
+                className="px-3 py-2 bg-secondary text-foreground border border-border rounded-md font-sans text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+              />
+            )}
+          </div>
+          <TagInput selectedTags={selectedTags} onChange={setSelectedTags} />
         </div>
       )}
 
