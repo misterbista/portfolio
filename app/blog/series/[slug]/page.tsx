@@ -1,4 +1,3 @@
-import { unstable_noStore as noStore } from "next/cache";
 import { supabase, formatDate, calculateReadingTime } from "@/lib/supabase";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -6,18 +5,38 @@ import BlogNav from "@/components/blog-nav";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { cache } from "react";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const { data: series } = await supabase
+export const revalidate = 60;
+
+const getSeriesBySlug = cache(async (slug: string) => {
+  const { data } = await supabase
     .from("series")
-    .select("name, description")
+    .select("id, name, slug, description")
     .eq("slug", slug)
     .single();
+
+  return data;
+});
+
+const getPublishedSeriesPosts = cache(async (seriesId: string) => {
+  const { data } = await supabase
+    .from("posts")
+    .select("title, slug, excerpt, content, created_at")
+    .eq("series_id", seriesId)
+    .eq("published", true)
+    .order("series_order");
+
+  return data || [];
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const series = await getSeriesBySlug(slug);
 
   if (!series) return { title: "Series Not Found | Piyushraj Bista" };
 
@@ -28,25 +47,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SeriesPage({ params }: Props) {
-  noStore();
   const { slug } = await params;
 
-  const { data: series } = await supabase
-    .from("series")
-    .select("id, name, slug, description")
-    .eq("slug", slug)
-    .single();
+  const series = await getSeriesBySlug(slug);
 
   if (!series) notFound();
 
-  const { data } = await supabase
-    .from("posts")
-    .select("title, slug, excerpt, content, created_at")
-    .eq("series_id", series.id)
-    .eq("published", true)
-    .order("series_order");
-
-  const posts = data || [];
+  const posts = await getPublishedSeriesPosts(series.id);
 
   return (
     <div

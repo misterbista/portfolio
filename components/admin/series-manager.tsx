@@ -29,7 +29,7 @@ export default function SeriesManager() {
     setLoading(true);
     const { data } = await supabase
       .from("series")
-      .select("*")
+      .select("id, name, slug, description, created_at")
       .order("name");
     setSeriesList(data || []);
     setLoading(false);

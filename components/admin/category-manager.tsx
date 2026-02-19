@@ -28,7 +28,7 @@ export default function CategoryManager() {
     setLoading(true);
     const { data } = await supabase
       .from("categories")
-      .select("*")
+      .select("id, name, slug, created_at")
       .order("name");
     setCategories(data || []);
     setLoading(false);

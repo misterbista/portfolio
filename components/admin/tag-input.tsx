@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase, generateSlug, type Tag } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -18,15 +18,19 @@ export default function TagInput({ selectedTags, onChange }: Props) {
   useEffect(() => {
     supabase
       .from("tags")
-      .select("*")
+      .select("id, name, slug, created_at")
       .order("name")
       .then(({ data }) => setAllTags(data || []));
   }, []);
 
-  const filtered = allTags.filter(
-    (t) =>
-      t.name.toLowerCase().includes(input.toLowerCase()) &&
-      !selectedTags.some((s) => s.id === t.id)
+  const filtered = useMemo(
+    () =>
+      allTags.filter(
+        (t) =>
+          t.name.toLowerCase().includes(input.toLowerCase()) &&
+          !selectedTags.some((s) => s.id === t.id)
+      ),
+    [allTags, input, selectedTags]
   );
 
   function selectTag(tag: Tag) {

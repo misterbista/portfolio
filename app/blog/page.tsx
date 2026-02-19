@@ -1,4 +1,3 @@
-import { unstable_noStore as noStore } from "next/cache";
 import { supabase, formatDate, calculateReadingTime } from "@/lib/supabase";
 import type { Tag } from "@/lib/supabase";
 import type { Metadata } from "next";
@@ -35,7 +34,31 @@ type SeriesWithCount = {
   post_count: number;
 };
 
+type CategoryFilter = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type TagFilter = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type SeriesFilter = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+};
+
+type SeriesCountRow = {
+  series_id: string | null;
+};
+
 const POSTS_PER_PAGE = 10;
+export const revalidate = 30;
 
 export const metadata: Metadata = {
   title: "Blog | Piyushraj Bista",
@@ -52,9 +75,7 @@ type Props = {
   }>;
 };
 
-function buildUrl(
-  params: Record<string, string | undefined>
-) {
+function buildUrl(params: Record<string, string | undefined>) {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (v) sp.set(k, v);
@@ -64,66 +85,60 @@ function buildUrl(
 }
 
 export default async function BlogPage({ searchParams }: Props) {
-  noStore();
-
   const { page, search, category, tag } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || "1", 10) || 1);
   const from = (currentPage - 1) * POSTS_PER_PAGE;
   const to = from + POSTS_PER_PAGE - 1;
+  const searchText = search?.trim() || undefined;
 
-  // Fetch categories for filter bar
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("name, slug")
-    .order("name");
+  const [categoriesRes, allTagsRes, seriesRes, seriesRowsRes] =
+    await Promise.all([
+      supabase.from("categories").select("id, name, slug").order("name"),
+      supabase.from("tags").select("id, name, slug").order("name"),
+      supabase.from("series").select("id, name, slug, description").order("name"),
+      supabase
+        .from("posts")
+        .select("series_id")
+        .eq("published", true)
+        .not("series_id", "is", null),
+    ]);
 
-  // Fetch tags for filter bar
-  const { data: allTags } = await supabase
-    .from("tags")
-    .select("name, slug")
-    .order("name");
+  const categories = (categoriesRes.data || []) as CategoryFilter[];
+  const allTags = (allTagsRes.data || []) as TagFilter[];
+  const seriesData = (seriesRes.data || []) as SeriesFilter[];
+  const seriesRows = (seriesRowsRes.data || []) as SeriesCountRow[];
 
-  // Fetch series that have published posts
-  const { data: seriesData } = await supabase
-    .from("series")
-    .select("id, name, slug, description")
-    .order("name");
-
-  let seriesWithCounts: SeriesWithCount[] = [];
-  if (seriesData && seriesData.length > 0) {
-    const counts = await Promise.all(
-      seriesData.map(async (s) => {
-        const { count } = await supabase
-          .from("posts")
-          .select("id", { count: "exact", head: true })
-          .eq("series_id", s.id)
-          .eq("published", true);
-        return { ...s, post_count: count || 0 };
-      })
-    );
-    seriesWithCounts = counts.filter((s) => s.post_count > 0);
+  const seriesCounts = new Map<string, number>();
+  for (const row of seriesRows) {
+    if (!row.series_id) continue;
+    seriesCounts.set(row.series_id, (seriesCounts.get(row.series_id) || 0) + 1);
   }
 
-  // Resolve category slug → id for filtering
-  let categoryId: string | null = null;
-  if (category) {
-    const { data: cat } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", category)
-      .single();
-    categoryId = cat?.id || null;
-  }
+  const seriesWithCounts: SeriesWithCount[] = seriesData
+    .map((seriesItem) => ({
+      ...seriesItem,
+      post_count: seriesCounts.get(seriesItem.id) || 0,
+    }))
+    .filter((seriesItem) => seriesItem.post_count > 0);
 
-  // Resolve tag slug → id for filtering
-  let tagId: string | null = null;
-  if (tag) {
-    const { data: t } = await supabase
-      .from("tags")
-      .select("id")
-      .eq("slug", tag)
-      .single();
-    tagId = t?.id || null;
+  const categoryId = category
+    ? categories.find((c) => c.slug === category)?.id || null
+    : null;
+  const tagId = tag ? allTags.find((t) => t.slug === tag)?.id || null : null;
+
+  // Requested filters that don't exist should return empty quickly.
+  if ((category && !categoryId) || (tag && !tagId)) {
+    return renderPage({
+      posts: [],
+      totalPages: 0,
+      currentPage,
+      search: searchText,
+      category,
+      tag,
+      categories,
+      allTags,
+      seriesWithCounts,
+    });
   }
 
   // If filtering by tag, get the post IDs that have this tag
@@ -157,7 +172,7 @@ export default async function BlogPage({ searchParams }: Props) {
         posts: [],
         totalPages: 0,
         currentPage,
-        search,
+        search: searchText,
         category,
         tag,
         categories,
@@ -168,8 +183,8 @@ export default async function BlogPage({ searchParams }: Props) {
     query = query.in("id", tagPostIds);
   }
 
-  if (search) {
-    query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+  if (searchText) {
+    query = query.or(`title.ilike.%${searchText}%,excerpt.ilike.%${searchText}%`);
   }
 
   const { data, count } = await query.range(from, to);
@@ -180,7 +195,7 @@ export default async function BlogPage({ searchParams }: Props) {
     posts: posts || [],
     totalPages,
     currentPage,
-    search,
+    search: searchText,
     category,
     tag,
     categories,
@@ -206,8 +221,8 @@ function renderPage({
   search?: string;
   category?: string;
   tag?: string;
-  categories: { name: string; slug: string }[] | null;
-  allTags: { name: string; slug: string }[] | null;
+  categories: CategoryFilter[];
+  allTags: TagFilter[];
   seriesWithCounts: SeriesWithCount[];
 }) {
   const hasSeries = seriesWithCounts.length > 0;
@@ -263,7 +278,7 @@ function renderPage({
         {/* Posts column */}
         <div className={hasSeries ? "flex-1 min-w-0" : ""}>
           {/* Category filter pills */}
-          {categories && categories.length > 0 && (
+          {categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               <Link
                 href={buildUrl({ search, tag })}
@@ -292,7 +307,7 @@ function renderPage({
           )}
 
           {/* Tag filter pills */}
-          {allTags && allTags.length > 0 && (
+          {allTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-8">
               {tag && (
                 <Link

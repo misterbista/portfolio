@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   supabase,
   generateSlug,
@@ -24,6 +24,7 @@ type Props = {
 };
 
 export default function PostEditor({ postId, onBack }: Props) {
+  const initialTagIdsRef = useRef<Set<string>>(new Set());
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -49,7 +50,11 @@ export default function PostEditor({ postId, onBack }: Props) {
       setCategories(catRes.data || []);
       setSeriesList(seriesRes.data || []);
     });
-    if (postId) loadPost(postId);
+    if (postId) {
+      loadPost(postId);
+    } else {
+      initialTagIdsRef.current = new Set();
+    }
   }, [postId]);
 
   async function loadPost(id: string) {
@@ -72,7 +77,9 @@ export default function PostEditor({ postId, onBack }: Props) {
     setCategoryId(post.category_id);
     setSeriesId(post.series_id);
     setSeriesOrder(post.series_order);
-    setSelectedTags(post.post_tags?.map((pt) => pt.tags) || []);
+    const tags = post.post_tags?.map((pt) => pt.tags) || [];
+    setSelectedTags(tags);
+    initialTagIdsRef.current = new Set(tags.map((tag) => tag.id));
   }
 
   function handleTitleChange(value: string) {
@@ -129,17 +136,43 @@ export default function PostEditor({ postId, onBack }: Props) {
       savedPostId = data.id;
     }
 
-    // Sync tags
+    // Sync tags by diffing to minimize writes.
     if (savedPostId) {
-      await supabase.from("post_tags").delete().eq("post_id", savedPostId);
-      if (selectedTags.length > 0) {
-        await supabase.from("post_tags").insert(
-          selectedTags.map((t) => ({
-            post_id: savedPostId!,
-            tag_id: t.id,
-          }))
-        );
+      const nextTagIds = new Set(selectedTags.map((tag) => tag.id));
+      const prevTagIds = initialTagIdsRef.current;
+      const tagIdsToDelete = [...prevTagIds].filter((id) => !nextTagIds.has(id));
+      const tagIdsToInsert = [...nextTagIds].filter((id) => !prevTagIds.has(id));
+
+      if (tagIdsToDelete.length > 0) {
+        const { error: deleteTagsError } = await supabase
+          .from("post_tags")
+          .delete()
+          .eq("post_id", savedPostId)
+          .in("tag_id", tagIdsToDelete);
+
+        if (deleteTagsError) {
+          showStatus("Failed to sync tags: " + deleteTagsError.message, "error");
+          return;
+        }
       }
+
+      if (tagIdsToInsert.length > 0) {
+        const { error: insertTagsError } = await supabase
+          .from("post_tags")
+          .insert(
+            tagIdsToInsert.map((tagId) => ({
+              post_id: savedPostId!,
+              tag_id: tagId,
+            }))
+          );
+
+        if (insertTagsError) {
+          showStatus("Failed to sync tags: " + insertTagsError.message, "error");
+          return;
+        }
+      }
+
+      initialTagIdsRef.current = nextTagIds;
     }
 
     showStatus(postId ? "Post updated." : "Post created.", "success");

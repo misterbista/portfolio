@@ -28,7 +28,6 @@ export default function AuthGate({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[auth-gate] event:", event, "session:", !!session);
       if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
         hasResolved.current = true;
         checkSession(session);
@@ -73,12 +72,6 @@ export default function AuthGate({
       (s.user.user_metadata.user_name as string) ||
       (s.user.user_metadata.preferred_username as string) ||
       "";
-    console.log(
-      "[auth-gate] username:",
-      username,
-      "allowed:",
-      ALLOWED_GITHUB_USER
-    );
     if (
       !ALLOWED_GITHUB_USER ||
       username.toLowerCase() !== ALLOWED_GITHUB_USER.toLowerCase()

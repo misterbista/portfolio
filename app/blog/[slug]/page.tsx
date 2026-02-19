@@ -19,6 +19,7 @@ import TagBadges from "@/components/blog/tag-badges";
 import SeriesNav from "@/components/blog/series-nav";
 import ViewCounter from "@/components/blog/view-counter";
 import Reactions from "@/components/blog/reactions";
+import { cache } from "react";
 
 type FullPost = Post & {
   categories: { name: string; slug: string } | null;
@@ -45,14 +46,33 @@ renderer.heading = ({ text, depth }) => {
 };
 marked.use({ renderer });
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const { data: post } = await supabase
+const getPublishedPostBySlug = cache(async (slug: string) => {
+  const { data } = await supabase
     .from("posts")
-    .select("title, excerpt")
+    .select(
+      "id, title, slug, excerpt, content, published, created_at, updated_at, category_id, series_id, series_order, view_count, categories(name, slug), post_tags(tags(id, name, slug, created_at)), series(id, name, slug, description, created_at)"
+    )
     .eq("slug", slug)
     .eq("published", true)
     .single();
+
+  return (data as FullPost | null) || null;
+});
+
+const getPublishedSeriesPosts = cache(async (seriesId: string) => {
+  const { data } = await supabase
+    .from("posts")
+    .select("title, slug, series_order")
+    .eq("series_id", seriesId)
+    .eq("published", true)
+    .order("series_order");
+
+  return (data as SeriesPost[]) || [];
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPublishedPostBySlug(slug);
 
   if (!post) return { title: "Post Not Found | Piyushraj Bista" };
 
@@ -69,17 +89,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-
-  const { data } = await supabase
-    .from("posts")
-    .select(
-      "*, categories(name, slug), post_tags(tags(id, name, slug)), series(id, name, slug)"
-    )
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
-
-  const post = data as FullPost | null;
+  const post = await getPublishedPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -93,13 +103,7 @@ export default async function PostPage({ params }: Props) {
   // Fetch series posts if this post belongs to a series
   let seriesPosts: SeriesPost[] = [];
   if (post.series_id && post.series) {
-    const { data: sp } = await supabase
-      .from("posts")
-      .select("title, slug, series_order")
-      .eq("series_id", post.series_id)
-      .eq("published", true)
-      .order("series_order");
-    seriesPosts = (sp as SeriesPost[]) || [];
+    seriesPosts = await getPublishedSeriesPosts(post.series_id);
   }
 
   return (

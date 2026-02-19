@@ -1,13 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase, formatDate, type Post } from "@/lib/supabase";
+import { supabase, formatDate } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
 
-type PostWithJoins = Post & {
+type PostWithJoins = {
+  id: string;
+  title: string;
+  published: boolean;
+  created_at: string;
+  view_count: number;
   categories?: { name: string } | null;
   series?: { name: string } | null;
+};
+
+type RawPostRow = {
+  id: string;
+  title: string;
+  published: boolean;
+  created_at: string;
+  view_count: number;
+  categories: { name: string }[] | null;
+  series: { name: string }[] | null;
 };
 
 type Props = {
@@ -31,7 +46,9 @@ export default function PostList({ onEdit, onNew }: Props) {
     setLoading(true);
     const { data, error } = await supabase
       .from("posts")
-      .select("*, categories(name), series(name)")
+      .select(
+        "id, title, published, created_at, view_count, categories(name), series(name)"
+      )
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -39,20 +56,32 @@ export default function PostList({ onEdit, onNew }: Props) {
       setLoading(false);
       return;
     }
-    setPosts((data as PostWithJoins[]) || []);
+    const normalized = ((data as RawPostRow[]) || []).map((post) => ({
+      id: post.id,
+      title: post.title,
+      published: post.published,
+      created_at: post.created_at,
+      view_count: post.view_count,
+      categories: post.categories?.[0] || null,
+      series: post.series?.[0] || null,
+    }));
+    setPosts(normalized);
     setLoading(false);
   }
 
   async function deletePost(id: string, title: string) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
 
+    const previousPosts = posts;
+    setPosts((current) => current.filter((post) => post.id !== id));
+
     const { error } = await supabase.from("posts").delete().eq("id", id);
     if (error) {
+      setPosts(previousPosts);
       showStatus("Failed to delete: " + error.message, "error");
       return;
     }
     showStatus("Post deleted.", "success");
-    loadPosts();
   }
 
   function showStatus(text: string, type: "success" | "error") {
