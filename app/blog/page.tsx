@@ -12,6 +12,8 @@ import {
   faMagnifyingGlass,
   faXmark,
   faEye,
+  faLayerGroup,
+  faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 type PostWithCategory = {
@@ -23,6 +25,14 @@ type PostWithCategory = {
   view_count: number;
   categories: { name: string; slug: string } | null;
   post_tags?: { tags: Tag }[];
+};
+
+type SeriesWithCount = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  post_count: number;
 };
 
 const POSTS_PER_PAGE = 10;
@@ -72,6 +82,27 @@ export default async function BlogPage({ searchParams }: Props) {
     .from("tags")
     .select("name, slug")
     .order("name");
+
+  // Fetch series that have published posts
+  const { data: seriesData } = await supabase
+    .from("series")
+    .select("id, name, slug, description")
+    .order("name");
+
+  let seriesWithCounts: SeriesWithCount[] = [];
+  if (seriesData && seriesData.length > 0) {
+    const counts = await Promise.all(
+      seriesData.map(async (s) => {
+        const { count } = await supabase
+          .from("posts")
+          .select("id", { count: "exact", head: true })
+          .eq("series_id", s.id)
+          .eq("published", true);
+        return { ...s, post_count: count || 0 };
+      })
+    );
+    seriesWithCounts = counts.filter((s) => s.post_count > 0);
+  }
 
   // Resolve category slug → id for filtering
   let categoryId: string | null = null;
@@ -131,6 +162,7 @@ export default async function BlogPage({ searchParams }: Props) {
         tag,
         categories,
         allTags,
+        seriesWithCounts,
       });
     }
     query = query.in("id", tagPostIds);
@@ -153,6 +185,7 @@ export default async function BlogPage({ searchParams }: Props) {
     tag,
     categories,
     allTags,
+    seriesWithCounts,
   });
 }
 
@@ -165,6 +198,7 @@ function renderPage({
   tag,
   categories,
   allTags,
+  seriesWithCounts,
 }: {
   posts: PostWithCategory[];
   totalPages: number;
@@ -174,6 +208,7 @@ function renderPage({
   tag?: string;
   categories: { name: string; slug: string }[] | null;
   allTags: { name: string; slug: string }[] | null;
+  seriesWithCounts: SeriesWithCount[];
 }) {
   return (
     <div
@@ -277,6 +312,38 @@ function renderPage({
               #{t.name}
             </Link>
           ))}
+        </div>
+      )}
+
+      {/* Series cards */}
+      {seriesWithCounts.length > 0 && !search && !category && !tag && (
+        <div className="mb-10">
+          <h2 className="text-[0.7rem] text-muted-foreground font-medium uppercase tracking-wider mb-3">
+            <FontAwesomeIcon icon={faLayerGroup} className="mr-1.5 text-[0.6rem]" />
+            Series
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {seriesWithCounts.map((s) => (
+              <Link
+                key={s.slug}
+                href={`/blog/series/${s.slug}`}
+                className="group flex flex-col gap-1.5 p-4 rounded-lg border border-border bg-secondary/20 no-underline transition-colors hover:bg-secondary/50 hover:border-muted-foreground"
+              >
+                <span className="text-foreground text-sm font-medium group-hover:text-foreground">
+                  {s.name}
+                </span>
+                {s.description && (
+                  <span className="text-muted-foreground text-[0.75rem] leading-snug line-clamp-2">
+                    {s.description}
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 text-muted-foreground text-[0.7rem] mt-0.5">
+                  {s.post_count} {s.post_count === 1 ? "post" : "posts"}
+                  <FontAwesomeIcon icon={faArrowRight} className="text-[0.55rem]" />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
