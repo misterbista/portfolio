@@ -221,49 +221,47 @@ function renderPage({
     >
       <BlogNav showBlogLink={false} />
 
-      <div className="mb-10">
-        <h1 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-foreground tracking-tight mb-2">
-          Blog
-        </h1>
-        <p className="text-muted-foreground text-[0.925rem]">
+      <div className="mb-8">
+        
+        <p className="text-muted-foreground text-[0.925rem] mb-5">
           Thoughts on web development, technology, and more.
         </p>
+
+        {/* Search */}
+        <form method="GET" action="/blog">
+          {category && <input type="hidden" name="category" value={category} />}
+          {tag && <input type="hidden" name="tag" value={tag} />}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <FontAwesomeIcon
+                icon={faMagnifyingGlass}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs"
+              />
+              <input
+                type="text"
+                name="search"
+                defaultValue={search || ""}
+                placeholder="Search posts..."
+                className="w-full pl-8 pr-3 py-2 bg-secondary text-foreground border border-border rounded-md text-xs transition-colors focus:outline-none focus:border-muted-foreground"
+              />
+            </div>
+            {search && (
+              <Link
+                href={buildUrl({ category, tag })}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground border border-border rounded-md no-underline transition-colors hover:text-foreground hover:bg-muted"
+              >
+                <FontAwesomeIcon icon={faXmark} />
+                Clear
+              </Link>
+            )}
+          </div>
+        </form>
       </div>
 
-      {/* Two-column layout: search+posts left, series right */}
+      {/* Two-column layout: posts left, series right */}
       <div className={hasSeries ? "flex flex-col lg:flex-row gap-10" : ""}>
         {/* Posts column */}
         <div className={hasSeries ? "flex-1 min-w-0" : ""}>
-          {/* Search */}
-          <form method="GET" action="/blog" className="mb-5">
-            {category && <input type="hidden" name="category" value={category} />}
-            {tag && <input type="hidden" name="tag" value={tag} />}
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs"
-                />
-                <input
-                  type="text"
-                  name="search"
-                  defaultValue={search || ""}
-                  placeholder="Search posts..."
-                  className="w-full pl-8 pr-3 py-2 bg-secondary text-foreground border border-border rounded-md text-xs transition-colors focus:outline-none focus:border-muted-foreground"
-                />
-              </div>
-              {search && (
-                <Link
-                  href={buildUrl({ category, tag })}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground border border-border rounded-md no-underline transition-colors hover:text-foreground hover:bg-muted"
-                >
-                  <FontAwesomeIcon icon={faXmark} />
-                  Clear
-                </Link>
-              )}
-            </div>
-          </form>
-
           {/* Category filter pills */}
           {categories && categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
