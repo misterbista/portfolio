@@ -107,28 +107,19 @@ export function generateSlug(title: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function calculateReadingTime(markdown: string): number {
-  const text = markdown
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/!\[.*?\]\(.*?\)/g, "")
-    .replace(/\[([^\]]*)\]\(.*?\)/g, "$1")
-    .replace(/[#*`~>\-|]/g, "")
-    .trim();
+export function calculateReadingTime(content: string): number {
+  const text = content.replace(/<[^>]*>/g, "").trim();
   const words = text.split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
 }
 
-export function extractToc(markdown: string): TocItem[] {
-  const headingRegex = /^(#{1,4})\s+(.+)$/gm;
+export function extractToc(content: string): TocItem[] {
+  const headingRegex = /<h([1-4])\s+id="([^"]*)"[^>]*>(.*?)<\/h\1>/gi;
   const items: TocItem[] = [];
   let match: RegExpExecArray | null;
-  while ((match = headingRegex.exec(markdown)) !== null) {
-    const text = match[2].replace(/[`*_~]/g, "").trim();
-    const id = text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
-    items.push({ level: match[1].length, text, id });
+  while ((match = headingRegex.exec(content)) !== null) {
+    const text = match[3].replace(/<[^>]*>/g, "").trim();
+    items.push({ level: parseInt(match[1], 10), text, id: match[2] });
   }
   return items;
 }

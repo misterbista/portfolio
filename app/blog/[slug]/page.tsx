@@ -9,7 +9,6 @@ import {
 } from "@/lib/supabase";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { marked, Renderer } from "marked";
 import BlogNav from "@/components/blog-nav";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,17 +33,6 @@ type Props = {
 };
 
 export const revalidate = 60;
-
-// Configure marked to add IDs to headings for TOC links
-const renderer = new Renderer();
-renderer.heading = ({ text, depth }) => {
-  const id = text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-");
-  return `<h${depth} id="${id}">${text}</h${depth}>\n`;
-};
-marked.use({ renderer });
 
 const getPublishedPostBySlug = cache(async (slug: string) => {
   const { data } = await supabase
@@ -95,7 +83,6 @@ export default async function PostPage({ params }: Props) {
     notFound();
   }
 
-  const htmlContent = marked.parse(post.content) as string;
   const readingTime = calculateReadingTime(post.content);
   const toc = extractToc(post.content);
   const tags: Tag[] = post.post_tags?.map((pt) => pt.tags) || [];
@@ -157,7 +144,7 @@ export default async function PostPage({ params }: Props) {
 
         <div
           className="markdown-body"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
+          dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </article>
 

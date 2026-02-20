@@ -212,10 +212,6 @@
 .scroll-more-btn.visible { opacity: 1; visibility: visible; pointer-events: auto; }
 .scroll-more-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateX(-50%) translateY(-2px); }
 
-/* MD Editor overrides */
-.w-md-editor { --color-border-default: oklch(1 0 0 / 10%) !important; border-radius: 0.5rem !important; }
-.w-md-editor-toolbar { border-bottom-color: oklch(1 0 0 / 10%) !important; }
-
 /* Post Editor */
 .post-editor-shell {
   box-shadow:
@@ -223,88 +219,83 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.post-editor-shell .post-editor-md.w-md-editor {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.035) 0%,
-    rgba(255, 255, 255, 0.015) 100%
-  ) !important;
+/* Tiptap Editor */
+.tiptap-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   border: 1px solid oklch(1 0 0 / 10%);
-  border-radius: 0.9rem !important;
+  border-radius: 0.9rem;
   overflow: hidden;
-  box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.015) 100%);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
-.post-editor-shell .post-editor-md .w-md-editor-toolbar {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-bottom: 1px solid oklch(1 0 0 / 10%) !important;
+.tiptap-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
   padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid oklch(1 0 0 / 10%);
 }
 
-.post-editor-shell .post-editor-md .w-md-editor-toolbar li > button {
-  color: oklch(0.708 0 0);
+.tiptap-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
   border-radius: 0.45rem;
+  background: transparent;
+  color: oklch(0.708 0 0);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+.tiptap-toolbar-btn:hover { color: oklch(0.985 0 0); background: rgba(255,255,255,0.08); }
+.tiptap-toolbar-btn.is-active { color: oklch(0.985 0 0); background: rgba(255,255,255,0.12); }
+.tiptap-toolbar-btn:disabled { opacity: 0.3; cursor: default; }
 
-.post-editor-shell .post-editor-md .w-md-editor-toolbar li > button:hover {
-  color: oklch(0.985 0 0);
-  background: rgba(255, 255, 255, 0.08);
+.tiptap-toolbar-divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: oklch(1 0 0 / 10%);
 }
 
-.post-editor-shell .post-editor-md .w-md-editor-toolbar li.active > button {
-  color: oklch(0.985 0 0);
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.post-editor-shell .post-editor-md .w-md-editor-content {
-  background: transparent !important;
-}
-
-.post-editor-shell .post-editor-md .w-md-editor-input {
-  border-right: 1px solid oklch(1 0 0 / 10%);
-}
-
-.post-editor-shell .post-editor-md .w-md-editor-text {
-  padding: 1.05rem 1.15rem !important;
-  background: transparent !important;
-}
-
-.post-editor-shell .post-editor-md .w-md-editor-text-pre > code,
-.post-editor-shell .post-editor-md .w-md-editor-text-input {
-  font-family: var(--font-geist-mono), monospace !important;
-  font-size: 0.9rem !important;
-  line-height: 1.7 !important;
-  letter-spacing: 0 !important;
-  tab-size: 2 !important;
-  color: oklch(0.92 0 0) !important;
-}
-
-.post-editor-shell .post-editor-md .w-md-editor-text-input {
+.tiptap-editor .tiptap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  outline: none;
   caret-color: oklch(0.985 0 0);
 }
 
-.post-editor-shell .post-editor-md .w-md-editor-preview {
-  background: transparent !important;
-  box-shadow: none !important;
+.tiptap-editor .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: oklch(0.708 0 0 / 40%);
+  pointer-events: none;
+  height: 0;
 }
 
-.post-editor-shell .post-editor-md .wmde-markdown,
-.post-editor-shell .post-editor-md .wmde-markdown-var {
-  background: transparent !important;
-  color: oklch(0.92 0 0) !important;
-  font-family: var(--font-geist-sans), sans-serif !important;
+.tiptap-editor .tiptap pre {
+  background: oklch(0.269 0 0);
+  border: 1px solid oklch(1 0 0 / 10%);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin: 1.25em 0;
+  overflow-x: auto;
 }
-
-.post-editor-shell .post-editor-md .wmde-markdown hr {
-  border-color: oklch(1 0 0 / 10%);
-}
-
-.post-editor-shell .post-editor-md .wmde-markdown blockquote {
-  border-left-color: oklch(1 0 0 / 15%);
-  color: oklch(0.708 0 0);
-  background: oklch(0.269 0 0 / 45%);
-  border-radius: 0 0.5rem 0.5rem 0;
+.tiptap-editor .tiptap pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.85rem;
 }

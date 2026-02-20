@@ -15,7 +15,7 @@ import {
   faChevronDown,
   faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
-import MDEditor from "@uiw/react-md-editor";
+import TiptapEditor from "./tiptap-editor";
 import TagInput from "./tag-input";
 
 type Props = {
@@ -315,20 +315,8 @@ export default function PostEditor({ postId, onBack }: Props) {
       )}
 
       {/* Editor — takes remaining space */}
-      <div className="flex-1 min-h-0" data-color-mode="dark">
-        <MDEditor
-          className="post-editor-md"
-          value={content}
-          onChange={(val) => setContent(val || "")}
-          height="100%"
-          style={{ height: "100%" }}
-          preview="live"
-          visibleDragbar={false}
-          textareaProps={{
-            placeholder:
-              "Write your post in markdown. Use headings, lists, links, and code blocks.",
-          }}
-        />
+      <div className="flex-1 min-h-0">
+        <TiptapEditor content={content} onChange={setContent} />
       </div>
     </div>
   );
