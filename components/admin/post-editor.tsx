@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import {
   supabase,
   generateSlug,
@@ -25,6 +25,9 @@ type Props = {
 
 export default function PostEditor({ postId, onBack }: Props) {
   const initialTagIdsRef = useRef<Set<string>>(new Set());
+  const [editorView, setEditorView] = useState<"edit" | "split" | "preview">(
+    "edit"
+  );
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -42,22 +45,12 @@ export default function PostEditor({ postId, onBack }: Props) {
     type: "success" | "error";
   } | null>(null);
 
-  useEffect(() => {
-    Promise.all([
-      supabase.from("categories").select("*").order("name"),
-      supabase.from("series").select("*").order("name"),
-    ]).then(([catRes, seriesRes]) => {
-      setCategories(catRes.data || []);
-      setSeriesList(seriesRes.data || []);
-    });
-    if (postId) {
-      loadPost(postId);
-    } else {
-      initialTagIdsRef.current = new Set();
-    }
-  }, [postId]);
+  function showStatus(text: string, type: "success" | "error") {
+    setStatusMsg({ text, type });
+    setTimeout(() => setStatusMsg(null), 4000);
+  }
 
-  async function loadPost(id: string) {
+  const loadPost = useEffectEvent(async (id: string) => {
     const { data, error } = await supabase
       .from("posts")
       .select("*, post_tags(tags(id, name, slug, created_at))")
@@ -80,7 +73,22 @@ export default function PostEditor({ postId, onBack }: Props) {
     const tags = post.post_tags?.map((pt) => pt.tags) || [];
     setSelectedTags(tags);
     initialTagIdsRef.current = new Set(tags.map((tag) => tag.id));
-  }
+  });
+
+  useEffect(() => {
+    Promise.all([
+      supabase.from("categories").select("*").order("name"),
+      supabase.from("series").select("*").order("name"),
+    ]).then(([catRes, seriesRes]) => {
+      setCategories(catRes.data || []);
+      setSeriesList(seriesRes.data || []);
+    });
+    if (postId) {
+      loadPost(postId);
+    } else {
+      initialTagIdsRef.current = new Set();
+    }
+  }, [postId]);
 
   function handleTitleChange(value: string) {
     setTitle(value);
@@ -179,11 +187,6 @@ export default function PostEditor({ postId, onBack }: Props) {
     setTimeout(onBack, 800);
   }
 
-  function showStatus(text: string, type: "success" | "error") {
-    setStatusMsg({ text, type });
-    setTimeout(() => setStatusMsg(null), 4000);
-  }
-
   return (
     <div className="post-editor-shell h-full min-h-0 flex flex-col border border-border bg-secondary/20 backdrop-blur-sm p-4 sm:p-6">
       {/* Top bar */}
@@ -195,6 +198,22 @@ export default function PostEditor({ postId, onBack }: Props) {
           <FontAwesomeIcon icon={faArrowLeft} /> Back
         </button>
         <div className="flex items-center gap-2 sm:gap-3">
+          <div className="inline-flex items-center rounded-full border border-border bg-secondary/80 p-1">
+            {(["edit", "split", "preview"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setEditorView(mode)}
+                className={`rounded-full px-3 py-1.5 text-[0.72rem] capitalize transition-colors ${
+                  editorView === mode
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/80 px-3 py-1.5">
             <input
               type="checkbox"
@@ -316,7 +335,43 @@ export default function PostEditor({ postId, onBack }: Props) {
 
       {/* Editor — takes remaining space */}
       <div className="flex-1 min-h-0">
-        <TiptapEditor content={content} onChange={setContent} />
+        <div
+          className={`grid h-full min-h-0 gap-4 ${
+            editorView === "split" ? "lg:grid-cols-2" : "grid-cols-1"
+          }`}
+        >
+          {editorView !== "preview" && (
+            <div className="min-h-0">
+              <TiptapEditor content={content} onChange={setContent} />
+            </div>
+          )}
+
+          {editorView !== "edit" && (
+            <div className="post-preview-panel min-h-0 overflow-y-auto rounded-2xl border border-border bg-secondary/25 p-5">
+              <div className="mb-6 border-b border-border pb-4">
+                <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground font-medium">
+                  Preview
+                </p>
+                <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">
+                  {title || "Untitled post"}
+                </h1>
+                {excerpt && (
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    {excerpt}
+                  </p>
+                )}
+              </div>
+              <div
+                className="markdown-body"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    content ||
+                    "<p class='text-muted-foreground'>Start writing to see the preview.</p>",
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

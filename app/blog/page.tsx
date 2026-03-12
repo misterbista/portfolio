@@ -234,17 +234,34 @@ function renderPage({
     <div className="blog-shell">
       <BlogNav showBlogLink={false} />
 
-      <header className="blog-landing">
-        <span className="section-kicker">Writing</span>
-        <h1 className="blog-landing__title">
-          Notes on software, product delivery, and the small details that
-          matter.
-        </h1>
-        <p className="blog-landing__body">
-          Posts on web development, engineering decisions, and shipping real
-          work.
-        </p>
-      </header>
+      <div className="blog-searchbar">
+        <form method="GET" action="/blog" className="blog-searchbar__form">
+          {category && <input type="hidden" name="category" value={category} />}
+          {tag && <input type="hidden" name="tag" value={tag} />}
+          <div className="blog-searchbar__field">
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="blog-searchbar__icon"
+            />
+            <input
+              type="text"
+              name="search"
+              defaultValue={search || ""}
+              placeholder="Search posts..."
+              className="blog-searchbar__input"
+            />
+          </div>
+          {search && (
+            <Link
+              href={buildUrl({ category, tag })}
+              className="blog-searchbar__clear"
+            >
+              <FontAwesomeIcon icon={faXmark} />
+              Clear
+            </Link>
+          )}
+        </form>
+      </div>
 
       {featuredPost && (
         <section className="blog-featured">
@@ -280,39 +297,6 @@ function renderPage({
           ) : null}
         </section>
       )}
-
-      <div className="mb-8">
-
-        {/* Search */}
-        <form method="GET" action="/blog">
-          {category && <input type="hidden" name="category" value={category} />}
-          {tag && <input type="hidden" name="tag" value={tag} />}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <FontAwesomeIcon
-                icon={faMagnifyingGlass}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs"
-              />
-              <input
-                type="text"
-                name="search"
-                defaultValue={search || ""}
-                placeholder="Search posts..."
-                className="w-full pl-8 pr-3 py-2 bg-secondary text-foreground border border-border rounded-md text-xs transition-colors focus:outline-none focus:border-muted-foreground"
-              />
-            </div>
-            {search && (
-              <Link
-                href={buildUrl({ category, tag })}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground border border-border rounded-md no-underline transition-colors hover:text-foreground hover:bg-muted"
-              >
-                <FontAwesomeIcon icon={faXmark} />
-                Clear
-              </Link>
-            )}
-          </div>
-        </form>
-      </div>
 
       <div className={hasSeries ? "blog-collection" : ""}>
         <div className={hasSeries ? "min-w-0 flex-1" : ""}>
