@@ -44,6 +44,9 @@ export default function DotMatrixBackground() {
 
     const render = (time: number) => {
       context.clearRect(0, 0, width, height);
+      const breath = mediaQuery.matches
+        ? 0
+        : (Math.sin(time * 0.00055) + 1) * 0.5;
 
       for (let y = GRID_SIZE / 2; y < height; y += GRID_SIZE) {
         for (let x = GRID_SIZE / 2; x < width; x += GRID_SIZE) {
@@ -58,12 +61,12 @@ export default function DotMatrixBackground() {
               ? 0
               : Math.max(0, 1 - distance / CURSOR_RADIUS);
 
-          const radius = 0.7 + pulse * 0.22 + influence * 0.95;
-          const alpha = 0.06 + pulse * 0.04 + influence * 0.16;
+          const radius = 0.62 + pulse * 0.18 + breath * 0.2 + influence * 0.95;
+          const alpha = 0.04 + pulse * 0.03 + breath * 0.05 + influence * 0.16;
 
           context.beginPath();
           context.arc(x, y, radius, 0, Math.PI * 2);
-          context.fillStyle = `rgba(214, 226, 255, ${alpha})`;
+          context.fillStyle = `rgba(126, 255, 182, ${alpha})`;
           context.fill();
         }
       }

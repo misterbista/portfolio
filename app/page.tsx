@@ -79,8 +79,7 @@ export default function Home() {
           <main className="portfolio-main">
             <section className="hero-stage">
               <h2 className="hero-stage__title">
-                Building reliable digital products with calm systems and sharp
-                execution.
+                Full-stack developer focused on product, systems, and delivery.
               </h2>
               <p className="hero-stage__body">{summary}</p>
             </section>
