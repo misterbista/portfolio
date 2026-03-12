@@ -18,6 +18,7 @@ import TagBadges from "@/components/blog/tag-badges";
 import SeriesNav from "@/components/blog/series-nav";
 import ViewCounter from "@/components/blog/view-counter";
 import Reactions from "@/components/blog/reactions";
+import CommentsPanel from "@/components/blog/comments-panel";
 import { cache } from "react";
 
 type FullPost = Post & {
@@ -94,76 +95,70 @@ export default async function PostPage({ params }: Props) {
   }
 
   return (
-    <div
-      className="font-mono max-w-[720px] mx-auto min-h-screen"
-      style={{
-        padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)",
-      }}
-    >
+    <div className="blog-shell blog-post-shell">
       <BlogNav showBlogLink={false} />
-      <Link
-        href="/blog"
-        className="inline-flex items-center gap-1.5 text-muted-foreground text-[0.825rem] no-underline transition-colors hover:text-foreground mb-8"
-      >
-        <FontAwesomeIcon icon={faArrowLeft} className="text-[0.7rem]" />
-        Read other blogs
-      </Link>
 
-      <article>
-        <header className="mb-10">
-          <h1 className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold text-foreground tracking-tight leading-tight mb-3">
-            {post.title}
-          </h1>
-          <div className="flex flex-wrap items-center gap-2.5 text-[0.825rem]">
-            <span className="text-muted-foreground">
-              {formatDate(post.created_at)}
-            </span>
-            <span className="text-muted-foreground">&middot;</span>
-            <span className="text-muted-foreground">
-              {readingTime} min read
-            </span>
-            <span className="text-muted-foreground">&middot;</span>
+      <div className="blog-post-layout">
+        <aside className="blog-post-aside">
+          <Link href="/blog" className="blog-post-backlink">
+            <FontAwesomeIcon icon={faArrowLeft} className="text-[0.7rem]" />
+            Back to writing
+          </Link>
+
+          <div className="blog-post-aside__meta">
+            <span>{formatDate(post.created_at)}</span>
+            <span>{readingTime} min read</span>
             <ViewCounter slug={slug} initialCount={post.view_count} />
             {post.categories && (
-              <Link
-                href={`/blog?category=${post.categories.slug}`}
-                className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground border border-border no-underline transition-colors hover:bg-muted"
-              >
+              <Link href={`/blog?category=${post.categories.slug}`} className="blog-post-chip">
                 {post.categories.name}
               </Link>
             )}
           </div>
+
           {tags.length > 0 && (
-            <div className="mt-3">
+            <div className="mt-5">
               <TagBadges tags={tags} />
             </div>
           )}
-        </header>
 
-        <TableOfContents items={toc} />
+          <div className="mt-8">
+            <TableOfContents items={toc} />
+          </div>
+        </aside>
 
-        <div
-          className="markdown-body"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-      </article>
+        <article className="blog-post-article">
+          <header className="blog-post-header">
+            <h1 className="blog-post-title">{post.title}</h1>
+            {post.excerpt && <p className="blog-post-excerpt">{post.excerpt}</p>}
+          </header>
 
-      {post.series && seriesPosts.length > 0 && (
-        <div className="mt-12">
-          <SeriesNav
-            seriesName={post.series.name}
-            seriesSlug={post.series.slug}
-            posts={seriesPosts}
-            currentSlug={slug}
+          <div
+            className="markdown-body"
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
-        </div>
-      )}
 
-      <div className="mt-12 pt-8 border-t border-border">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-4">
-          Reactions
-        </p>
-        <Reactions postId={post.id} />
+          {post.series && seriesPosts.length > 0 && (
+            <div className="mt-12">
+              <SeriesNav
+                seriesName={post.series.name}
+                seriesSlug={post.series.slug}
+                posts={seriesPosts}
+                currentSlug={slug}
+              />
+            </div>
+          )}
+
+          <div className="blog-post-engagement">
+            <div>
+              <p className="comments-panel__eyebrow">Engagement</p>
+              <h2 className="comments-panel__title">Reactions</h2>
+            </div>
+            <Reactions postId={post.id} />
+          </div>
+
+          <CommentsPanel postId={post.id} />
+        </article>
       </div>
 
       <footer className="mt-16 pt-8 border-t border-border text-muted-foreground text-xs">

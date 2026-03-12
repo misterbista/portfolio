@@ -6,25 +6,22 @@ type Props = {
 
 export default function BlogNav({ showBlogLink = true }: Props) {
   return (
-    <nav className="flex items-center justify-between pb-8 mb-8 border-b border-border">
+    <nav className="blog-nav">
+      <div className="blog-nav__crumbs">
+        <Link href="/" className="blog-nav__brand">
+          Piyushraj Bista
+        </Link>
+        <span className="blog-nav__slash">/</span>
+        <Link href="/blog" className="blog-nav__section">
+          Writing
+        </Link>
+      </div>
       <Link
-        href="/"
-        className="text-foreground no-underline font-semibold text-base"
+        href={showBlogLink ? "/blog" : "/"}
+        className="blog-nav__action"
       >
-        Piyushraj Bista
+        {showBlogLink ? "Open blog" : "Back to portfolio"}
       </Link>
-      {showBlogLink ? (
-        <div className="flex gap-5 items-center">
-          <Link
-            href="/blog"
-            className="text-muted-foreground no-underline text-sm transition-colors hover:text-foreground"
-          >
-            Blog
-          </Link>
-        </div>
-      ) : (
-        <div />
-      )}
     </nav>
   );
 }

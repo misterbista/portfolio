@@ -226,21 +226,62 @@ function renderPage({
   seriesWithCounts: SeriesWithCount[];
 }) {
   const hasSeries = seriesWithCounts.length > 0;
+  const featuredPost =
+    !search && !category && !tag && currentPage === 1 ? posts[0] || null : null;
+  const listPosts = featuredPost ? posts.slice(1) : posts;
 
   return (
-    <div
-      className={`font-mono mx-auto min-h-screen ${hasSeries ? "max-w-[960px]" : "max-w-[720px]"}`}
-      style={{
-        padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)",
-      }}
-    >
+    <div className="blog-shell">
       <BlogNav showBlogLink={false} />
 
-      <div className="mb-8">
-        
-        <p className="text-muted-foreground text-[0.925rem] mb-5">
-          Thoughts on web development, technology, and more.
+      <header className="blog-landing">
+        <span className="section-kicker">Writing</span>
+        <h1 className="blog-landing__title">
+          Notes on software, product delivery, and the small details that
+          matter.
+        </h1>
+        <p className="blog-landing__body">
+          Posts on web development, engineering decisions, and shipping real
+          work.
         </p>
+      </header>
+
+      {featuredPost && (
+        <section className="blog-featured">
+          <div className="blog-featured__meta">
+            <span>{formatDate(featuredPost.created_at)}</span>
+            <span>{calculateReadingTime(featuredPost.content)} min read</span>
+            <span>{featuredPost.view_count.toLocaleString()} views</span>
+            {featuredPost.categories && (
+              <span>{featuredPost.categories.name}</span>
+            )}
+          </div>
+
+          <Link
+            href={`/blog/${featuredPost.slug}`}
+            className="blog-featured__link"
+          >
+            <h2 className="blog-featured__title">{featuredPost.title}</h2>
+          </Link>
+
+          {featuredPost.excerpt && (
+            <p className="blog-featured__excerpt">{featuredPost.excerpt}</p>
+          )}
+
+          <Link href={`/blog/${featuredPost.slug}`} className="blog-featured__cta">
+            Read article
+            <FontAwesomeIcon icon={faArrowRight} className="text-[0.65rem]" />
+          </Link>
+
+          {featuredPost.post_tags?.length ? (
+            <div className="mt-4">
+              <TagBadges tags={featuredPost.post_tags.map((pt) => pt.tags)} />
+            </div>
+          ) : null}
+        </section>
+      )}
+
+      <div className="mb-8">
 
         {/* Search */}
         <form method="GET" action="/blog">
@@ -273,10 +314,8 @@ function renderPage({
         </form>
       </div>
 
-      {/* Two-column layout: posts left, series right */}
-      <div className={hasSeries ? "flex flex-col lg:flex-row gap-10" : ""}>
-        {/* Posts column */}
-        <div className={hasSeries ? "flex-1 min-w-0" : ""}>
+      <div className={hasSeries ? "blog-collection" : ""}>
+        <div className={hasSeries ? "min-w-0 flex-1" : ""}>
           {/* Category filter pills */}
           {categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
@@ -333,74 +372,66 @@ function renderPage({
               ))}
             </div>
           )}
-          {posts.length === 0 ? (
+          {listPosts.length === 0 ? (
             <p className="text-muted-foreground text-[0.925rem] text-center py-12">
-              {search || category || tag
+              {featuredPost
+                ? "More posts coming soon."
+                : search || category || tag
                 ? "No posts found."
                 : "No posts yet. Check back soon!"}
             </p>
           ) : (
             <>
-              <div className="flex flex-col gap-2">
-                {posts.map((post) => {
+              <div className="blog-stream">
+                {listPosts.map((post) => {
                   const readingTime = calculateReadingTime(post.content);
                   const tags: Tag[] =
                     post.post_tags?.map((pt) => pt.tags) || [];
 
                   return (
-                    <div
+                    <article
                       key={post.slug}
-                      className="border-b border-border pb-6 mb-4 last:border-b-0"
+                      className="blog-stream__item"
                     >
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="block no-underline group"
+                        className="blog-stream__link"
                       >
-                        <h2 className="text-lg font-semibold text-foreground leading-snug mb-1.5 transition-colors group-hover:text-muted-foreground">
-                          {post.title}
-                        </h2>
-                        {post.excerpt && (
-                          <p className="text-muted-foreground text-sm leading-normal mb-2">
-                            {post.excerpt}
-                          </p>
-                        )}
-                        <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="text-muted-foreground text-[0.775rem]">
-                            {formatDate(post.created_at)}
-                          </span>
-                          <span className="text-muted-foreground text-[0.6rem]">
-                            &middot;
-                          </span>
-                          <span className="text-muted-foreground text-[0.775rem]">
-                            {readingTime} min read
-                          </span>
+                        <div className="blog-stream__meta">
+                          <span>{formatDate(post.created_at)}</span>
+                          <span>{readingTime} min read</span>
                           {post.view_count > 0 && (
-                            <>
-                              <span className="text-muted-foreground text-[0.6rem]">
-                                &middot;
-                              </span>
-                              <span className="text-muted-foreground text-[0.775rem]">
-                                <FontAwesomeIcon
-                                  icon={faEye}
-                                  className="text-[0.6rem] mr-1"
-                                />
-                                {post.view_count.toLocaleString()}
-                              </span>
-                            </>
-                          )}
-                          {post.categories && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground border border-border">
-                              {post.categories.name}
+                            <span>
+                              <FontAwesomeIcon
+                                icon={faEye}
+                                className="text-[0.6rem] mr-1"
+                              />
+                              {post.view_count.toLocaleString()}
                             </span>
                           )}
                         </div>
+                        <h2 className="blog-stream__title">
+                          {post.title}
+                        </h2>
+                        {post.excerpt && (
+                          <p className="blog-stream__excerpt">
+                            {post.excerpt}
+                          </p>
+                        )}
                       </Link>
-                      {tags.length > 0 && (
+                      <div className="blog-stream__foot">
+                        {post.categories && (
+                          <span className="blog-stream__category">
+                            {post.categories.name}
+                          </span>
+                        )}
+                      </div>
+                      {tags.length > 0 ? (
                         <div className="mt-2">
                           <TagBadges tags={tags} />
                         </div>
-                      )}
-                    </div>
+                      ) : null}
+                    </article>
                   );
                 })}
               </div>
@@ -454,9 +485,8 @@ function renderPage({
           )}
         </div>
 
-        {/* Series sidebar */}
         {hasSeries && (
-          <aside className="w-full lg:w-[220px] shrink-0">
+          <aside className="blog-series-aside">
             <div className="lg:sticky lg:top-8">
               <h2 className="text-[0.7rem] text-muted-foreground font-medium uppercase tracking-wider mb-3">
                 <FontAwesomeIcon
