@@ -4,8 +4,6 @@ import { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
-const LOADING_COMPLETE_EVENT = "portfolio:loading-complete";
-
 export default function ScrollMoreButton() {
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -37,18 +35,9 @@ export default function ScrollMoreButton() {
       };
     };
 
-    const completeInit = () => {
-      init();
-    };
-
-    if (document.documentElement.classList.contains("portfolio-session-loaded")) {
-      completeInit();
-    }
-
-    window.addEventListener(LOADING_COMPLETE_EVENT, completeInit);
+    init();
 
     return () => {
-      window.removeEventListener(LOADING_COMPLETE_EVENT, completeInit);
       cleanupInit?.();
     };
   }, []);

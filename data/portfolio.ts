@@ -5,7 +5,7 @@ export const profile = {
   email: "piyushrajbista@outlook.com",
   phone: "+977-9805335286",
   linkedin: "https://linkedin.com/in/piyushraj-bista-a692a6260",
-  github: "https://github.com/anormiedev",
+  github: "https://github.com/misterbista",
   website: "https://piyushrajbista.com.np",
 };
 
