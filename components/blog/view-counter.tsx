@@ -19,28 +19,34 @@ export default function ViewCounter({
   useEffect(() => {
     const storageKey = `viewed-post:${slug}`;
 
-    if (typeof window !== "undefined") {
-      const hasViewed = window.sessionStorage.getItem(storageKey);
-      if (hasViewed) return;
-      window.sessionStorage.setItem(storageKey, "1");
-    }
+    const incrementView = async () => {
+      if (typeof window !== "undefined") {
+        const hasViewed = window.sessionStorage.getItem(storageKey);
+        if (hasViewed) return;
+        window.sessionStorage.setItem(storageKey, "1");
+      }
 
-    supabase
-      .rpc("increment_view_count", { post_slug: slug })
-      .then(({ error }) => {
+      try {
+        const { error } = await supabase.rpc("increment_view_count", {
+          post_slug: slug,
+        });
+
         if (error) {
           if (typeof window !== "undefined") {
             window.sessionStorage.removeItem(storageKey);
           }
           return;
         }
+
         setCount((c) => c + 1);
-      })
-      .catch(() => {
+      } catch {
         if (typeof window !== "undefined") {
           window.sessionStorage.removeItem(storageKey);
         }
-      });
+      }
+    };
+
+    void incrementView();
   }, [slug]);
 
   return (
