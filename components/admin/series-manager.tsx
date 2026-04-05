@@ -26,6 +26,10 @@ export default function SeriesManager() {
   }, []);
 
   async function loadSeries() {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data } = await supabase
       .from("series")
@@ -40,6 +44,7 @@ export default function SeriesManager() {
     if (!trimmed) return;
 
     const slug = generateSlug(trimmed);
+    if (!supabase) return;
     const { error } = await supabase
       .from("series")
       .insert({ name: trimmed, slug, description: description.trim() });
@@ -68,6 +73,7 @@ export default function SeriesManager() {
     )
       return;
 
+    if (!supabase) return;
     const { error } = await supabase
       .from("series")
       .delete()

@@ -7,7 +7,7 @@ import PostList from "@/components/admin/post-list";
 import PostEditor from "@/components/admin/post-editor";
 import CategoryManager from "@/components/admin/category-manager";
 import SeriesManager from "@/components/admin/series-manager";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseConfigError } from "@/lib/supabase";
 
 export default function AdminPage() {
   const [view, setView] = useState<"list" | "editor">("list");
@@ -24,6 +24,27 @@ export default function AdminPage() {
   }
 
   const isEditor = view === "editor";
+
+  if (!supabase) {
+    return (
+      <div
+        className="mx-auto min-h-screen max-w-180"
+        style={{
+          padding: "clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 2rem)",
+        }}
+      >
+        <BlogNav />
+        <div className="py-16">
+          <h1 className="text-xl font-semibold text-foreground mb-3">
+            Blog Admin
+          </h1>
+          <p className="text-muted-foreground text-[0.925rem]">
+            {supabaseConfigError}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -54,7 +75,7 @@ export default function AdminPage() {
                       session.user.email}
                   </span>
                   <button
-                    onClick={() => supabase.auth.signOut()}
+                    onClick={() => supabase?.auth.signOut()}
                     className="px-3 py-1.5 rounded-md text-xs bg-secondary text-secondary-foreground border border-border cursor-pointer transition-colors hover:bg-muted"
                   >
                     Sign out
@@ -65,12 +86,12 @@ export default function AdminPage() {
 
             {view === "list" ? (
               <>
-              <CategoryManager />
-              <SeriesManager />
-              <PostList
-                onEdit={(id) => openEditor(id)}
-                onNew={() => openEditor(null)}
-              />
+                <CategoryManager />
+                <SeriesManager />
+                <PostList
+                  onEdit={(id) => openEditor(id)}
+                  onNew={() => openEditor(null)}
+                />
               </>
             ) : (
               <PostEditor postId={editingPostId} onBack={backToList} />

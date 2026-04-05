@@ -25,6 +25,10 @@ export default function CategoryManager() {
   }, []);
 
   async function loadCategories() {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data } = await supabase
       .from("categories")
@@ -39,6 +43,7 @@ export default function CategoryManager() {
     if (!trimmed) return;
 
     const slug = generateSlug(trimmed);
+    if (!supabase) return;
     const { error } = await supabase
       .from("categories")
       .insert({ name: trimmed, slug });
@@ -62,6 +67,7 @@ export default function CategoryManager() {
     if (!confirm(`Delete "${catName}"? Posts will become uncategorized.`))
       return;
 
+    if (!supabase) return;
     const { error } = await supabase
       .from("categories")
       .delete()

@@ -19,6 +19,11 @@ export default function AuthGate({
   const hasResolved = useRef(false);
 
   useEffect(() => {
+    if (!supabase) {
+      setStatus("ready");
+      return;
+    }
+
     // Check if URL has OAuth callback params — if so, wait for onAuthStateChange
     const hasAuthParams =
       window.location.hash.includes("access_token") ||
@@ -76,7 +81,7 @@ export default function AuthGate({
       !ALLOWED_GITHUB_USER ||
       username.toLowerCase() !== ALLOWED_GITHUB_USER.toLowerCase()
     ) {
-      supabase.auth.signOut();
+      supabase?.auth.signOut();
       setSession(null);
       setStatus("unauthorized");
       return;
@@ -86,6 +91,7 @@ export default function AuthGate({
   }
 
   async function signIn() {
+    if (!supabase) return;
     await supabase.auth.signInWithOAuth({
       provider: "github",
       options: { redirectTo: window.location.origin + "/admin" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function ViewCounter({
@@ -12,46 +12,41 @@ export default function ViewCounter({
 }) {
   const [count, setCount] = useState(initialCount);
 
+  const incrementView = useCallback(async () => {
+    const storageKey = `viewed-post:${slug}`;
+
+    if (typeof window === "undefined" || !supabase) return;
+    if (sessionStorage.getItem(storageKey)) return;
+
+    sessionStorage.setItem(storageKey, "1");
+
+    try {
+      const { error } = await supabase.rpc("increment_view_count", {
+        post_slug: slug,
+      });
+
+      if (error) {
+        sessionStorage.removeItem(storageKey);
+        return;
+      }
+
+      setCount((c) => c + 1);
+    } catch {
+      sessionStorage.removeItem(storageKey);
+    }
+  }, [slug]);
+
   useEffect(() => {
     setCount(initialCount);
   }, [initialCount]);
 
   useEffect(() => {
-    const storageKey = `viewed-post:${slug}`;
-
-    const incrementView = async () => {
-      if (typeof window !== "undefined") {
-        const hasViewed = window.sessionStorage.getItem(storageKey);
-        if (hasViewed) return;
-        window.sessionStorage.setItem(storageKey, "1");
-      }
-
-      try {
-        const { error } = await supabase.rpc("increment_view_count", {
-          post_slug: slug,
-        });
-
-        if (error) {
-          if (typeof window !== "undefined") {
-            window.sessionStorage.removeItem(storageKey);
-          }
-          return;
-        }
-
-        setCount((c) => c + 1);
-      } catch {
-        if (typeof window !== "undefined") {
-          window.sessionStorage.removeItem(storageKey);
-        }
-      }
-    };
-
-    void incrementView();
-  }, [slug]);
+    incrementView();
+  }, [incrementView]);
 
   return (
-    <span className="text-muted-foreground text-[0.775rem]">
-      {count.toLocaleString()} views
+    <span className="post-metrics__value">
+      {count.toLocaleString()}
     </span>
   );
 }

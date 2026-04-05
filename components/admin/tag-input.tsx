@@ -16,6 +16,7 @@ export default function TagInput({ selectedTags, onChange }: Props) {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
+    if (!supabase) return;
     supabase
       .from("tags")
       .select("id, name, slug, created_at")
@@ -56,6 +57,7 @@ export default function TagInput({ selectedTags, onChange }: Props) {
     }
 
     const slug = generateSlug(name);
+    if (!supabase) return;
     const { data, error } = await supabase
       .from("tags")
       .insert({ name, slug })

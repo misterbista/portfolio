@@ -51,6 +51,7 @@ export default function PostEditor({ postId, onBack }: Props) {
   }
 
   const loadPost = useEffectEvent(async (id: string) => {
+    if (!supabase) return;
     const { data, error } = await supabase
       .from("posts")
       .select("*, post_tags(tags(id, name, slug, created_at))")
@@ -76,6 +77,7 @@ export default function PostEditor({ postId, onBack }: Props) {
   });
 
   useEffect(() => {
+    if (!supabase) return;
     Promise.all([
       supabase.from("categories").select("*").order("name"),
       supabase.from("series").select("*").order("name"),
@@ -102,6 +104,11 @@ export default function PostEditor({ postId, onBack }: Props) {
     }
     if (!slug.trim()) {
       showStatus("Slug is required.", "error");
+      return;
+    }
+
+    if (!supabase) {
+      showStatus("Supabase is not configured.", "error");
       return;
     }
 

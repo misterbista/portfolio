@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { supabase, formatDate } from "@/lib/supabase";
 
 type CommentRow = {
@@ -11,25 +11,36 @@ type CommentRow = {
 };
 
 export default function CommentsPanel({ postId }: { postId: string }) {
+  const isSupabaseUnavailable = !supabase;
   const [comments, setComments] = useState<CommentRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isUnsupported, setIsUnsupported] = useState(false);
+  const [isLoading, setIsLoading] = useState(!isSupabaseUnavailable);
+  const [isUnsupported, setIsUnsupported] = useState(isSupabaseUnavailable);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authorName, setAuthorName] = useState("");
   const [body, setBody] = useState("");
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
+    const client = supabase;
+    if (!client) {
+      return;
+    }
+
     let cancelled = false;
 
     async function loadComments() {
-      const { data, error } = await supabase
+      const { data, error } = await client!
         .from("post_comments")
         .select("id, author_name, body, created_at")
         .eq("post_id", postId)
         .order("created_at", { ascending: false });
 
-      if (cancelled) return;
+      if (cancelled) {
+        return;
+      }
 
       if (error) {
         setIsUnsupported(true);
@@ -41,7 +52,7 @@ export default function CommentsPanel({ postId }: { postId: string }) {
       setIsLoading(false);
     }
 
-    loadComments();
+    void loadComments();
 
     return () => {
       cancelled = true;
@@ -54,10 +65,19 @@ export default function CommentsPanel({ postId }: { postId: string }) {
       return;
     }
 
-    setIsSubmitting(true);
-    setFeedback("");
+    const client = supabase;
+    if (!client) {
+      setFeedback({
+        type: "error",
+        message: "Comments are not available yet.",
+      });
+      return;
+    }
 
-    const { data, error } = await supabase
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    const { data, error } = await client
       .from("post_comments")
       .insert({
         post_id: postId,
@@ -68,7 +88,10 @@ export default function CommentsPanel({ postId }: { postId: string }) {
       .single();
 
     if (error || !data) {
-      setFeedback("Comments are not available yet.");
+      setFeedback({
+        type: "error",
+        message: "Comments are not available yet.",
+      });
       setIsSubmitting(false);
       return;
     }
@@ -76,34 +99,47 @@ export default function CommentsPanel({ postId }: { postId: string }) {
     setComments((prev) => [data as CommentRow, ...prev]);
     setAuthorName("");
     setBody("");
-    setFeedback("Comment posted.");
+    setFeedback({ type: "success", message: "Comment posted successfully." });
     setIsSubmitting(false);
+
+    // Auto-clear success feedback
+    setTimeout(() => setFeedback(null), 4000);
   }
 
   return (
-    <section className="comments-panel">
+    <section className="comments-panel" id="comments">
       <div className="comments-panel__header">
         <div>
           <p className="comments-panel__eyebrow">Discussion</p>
           <h2 className="comments-panel__title">Comments</h2>
         </div>
         <span className="comments-panel__count">
-          {isLoading ? "..." : comments.length}
+          {isLoading ? (
+            <span className="animate-pulse">...</span>
+          ) : (
+            comments.length
+          )}
         </span>
       </div>
 
-      <form className="comments-panel__form" onSubmit={handleSubmit}>
+      <form
+        className="comments-panel__form"
+        onSubmit={handleSubmit}
+        aria-label="Post a comment"
+      >
         <input
           type="text"
           value={authorName}
-          onChange={(event) => setAuthorName(event.target.value)}
+          onChange={(e) => setAuthorName(e.target.value)}
           placeholder="Your name"
           className="comments-panel__input"
           disabled={isUnsupported || isSubmitting}
+          maxLength={100}
+          autoComplete="name"
         />
         <textarea
           value={body}
-          onChange={(event) => setBody(event.target.value)}
+          onChange={(e) => setBody(e.target.value)}
           placeholder={
             isUnsupported
               ? "Comments are being wired up."
@@ -111,37 +147,68 @@ export default function CommentsPanel({ postId }: { postId: string }) {
           }
           className="comments-panel__textarea"
           disabled={isUnsupported || isSubmitting}
+          maxLength={2000}
         />
         <div className="comments-panel__actions">
           <p className="comments-panel__note">
             {isUnsupported
               ? "Comment storage is not configured yet."
-              : "Comments go directly to the blog discussion stream."}
+              : "Be respectful and constructive."}
           </p>
           <button
             type="submit"
             className="comments-panel__submit"
-            disabled={isUnsupported || isSubmitting}
+            disabled={
+              isUnsupported ||
+              isSubmitting ||
+              !authorName.trim() ||
+              !body.trim()
+            }
           >
             {isSubmitting ? "Posting..." : "Post comment"}
           </button>
         </div>
-        {feedback && <p className="comments-panel__feedback">{feedback}</p>}
+        {feedback && (
+          <p
+            className={`text-xs font-mono ${
+              feedback.type === "success"
+                ? "text-green-400/80"
+                : "text-red-400/80"
+            }`}
+            role="status"
+          >
+            {feedback.message}
+          </p>
+        )}
       </form>
 
-      <div className="comments-panel__list">
+      <div className="comments-panel__list" role="list">
         {isLoading ? (
-          <p className="comments-panel__empty">Loading comments...</p>
+          <div className="py-6 flex flex-col gap-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-3 w-24 bg-muted rounded mb-2" />
+                <div className="h-4 w-3/4 bg-muted rounded" />
+              </div>
+            ))}
+          </div>
         ) : comments.length === 0 ? (
-          <p className="comments-panel__empty">
-            No comments yet. Start the discussion.
+          <p className="comments-panel__empty py-8 text-center">
+            No comments yet. Be the first to share your thoughts.
           </p>
         ) : (
           comments.map((comment) => (
-            <article key={comment.id} className="comments-panel__item">
+            <article
+              key={comment.id}
+              className="comments-panel__item"
+              role="listitem"
+            >
               <div className="comments-panel__item-meta">
                 <strong>{comment.author_name}</strong>
-                <span>{formatDate(comment.created_at)}</span>
+                <span>&middot;</span>
+                <time dateTime={comment.created_at}>
+                  {formatDate(comment.created_at)}
+                </time>
               </div>
               <p className="comments-panel__item-body">{comment.body}</p>
             </article>

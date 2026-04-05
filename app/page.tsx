@@ -3,13 +3,21 @@ import {
   faEnvelope,
   faLocationDot,
   faPhone,
+  faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 import DotMatrixBackground from "@/components/dot-matrix-background";
 import ScrollIndicator from "@/components/scroll-indicator";
 import ScrollMoreButton from "@/components/scroll-more-button";
 import RecentPosts from "@/components/recent-posts";
-import { education, experience, profile, skills, softSkills, summary } from "@/data/portfolio";
+import {
+  education,
+  experience,
+  profile,
+  skills,
+  softSkills,
+  summary,
+} from "@/data/portfolio";
 
 export default function Home() {
   return (
@@ -18,59 +26,82 @@ export default function Home() {
       <div className="animate-fade-in-up">
         <div className="portfolio-shell grid min-h-screen grid-cols-1 gap-x-[clamp(3rem,8vw,7rem)] gap-y-12 px-[clamp(1.25rem,5vw,4rem)] py-[clamp(1.5rem,5vw,4rem)] xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]">
           <aside className="portfolio-rail xl:sticky xl:top-[clamp(2rem,4vw,3rem)] xl:self-start">
-            <div className="portfolio-identity">
-              <p className="portfolio-status-pill">Available for ambitious products</p>
+            <header className="portfolio-identity">
               <h1 className="portfolio-name">{profile.name}</h1>
               <p className="portfolio-role">{profile.title}</p>
               <p className="portfolio-meta">
                 <FontAwesomeIcon
                   icon={faLocationDot}
-                  className="mr-1.5 text-muted-foreground"
+                  className="mr-1.5"
                 />
                 {profile.location}
               </p>
-            </div>
+            </header>
 
             <div className="portfolio-rail-block">
-              <p className="sidebar-panel-label">Direct</p>
+              <p className="sidebar-panel-label">Connect</p>
               <div className="portfolio-contact-list">
                 <a
                   href={`mailto:${profile.email}`}
                   className="portfolio-text-link"
                 >
-                  <span>
-                    <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+                  <span className="portfolio-text-link__label">
+                    <span className="portfolio-text-link__icon">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                    </span>
                     Email
                   </span>
-                  <span>{profile.email}</span>
+                  <span className="portfolio-text-link__value">
+                    {profile.email}
+                  </span>
                 </a>
                 <a
                   href={`tel:${profile.phone.replace(/-/g, "")}`}
                   className="portfolio-text-link"
                 >
-                  <span>
-                    <FontAwesomeIcon icon={faPhone} className="mr-2" />
+                  <span className="portfolio-text-link__label">
+                    <span className="portfolio-text-link__icon">
+                      <FontAwesomeIcon icon={faPhone} />
+                    </span>
                     Phone
                   </span>
-                  <span>{profile.phone}</span>
+                  <span className="portfolio-text-link__value">
+                    {profile.phone}
+                  </span>
                 </a>
-                <a href={profile.linkedin} target="_blank" className="portfolio-text-link">
-                  <span>
-                    <FontAwesomeIcon icon={faLinkedin} className="mr-2" />
+                <a
+                  href={profile.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="portfolio-text-link"
+                >
+                  <span className="portfolio-text-link__label">
+                    <span className="portfolio-text-link__icon">
+                      <FontAwesomeIcon icon={faLinkedin} />
+                    </span>
                     LinkedIn
                   </span>
-                  <span>Open</span>
+                  <FontAwesomeIcon
+                    icon={faArrowRight}
+                    className="portfolio-text-link__arrow"
+                  />
                 </a>
                 <a
                   href={profile.github}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="github-tooltip portfolio-text-link"
                 >
-                  <span>
-                    <FontAwesomeIcon icon={faGithub} className="mr-2" />
+                  <span className="portfolio-text-link__label">
+                    <span className="portfolio-text-link__icon">
+                      <FontAwesomeIcon icon={faGithub} />
+                    </span>
                     GitHub
                   </span>
-                  <span>Open</span>
+                  <FontAwesomeIcon
+                    icon={faArrowRight}
+                    className="portfolio-text-link__arrow"
+                  />
                 </a>
               </div>
             </div>
@@ -79,7 +110,9 @@ export default function Home() {
           <main className="portfolio-main">
             <section className="hero-stage">
               <h2 className="hero-stage__title">
-                Full-stack developer focused on product, systems, and delivery.
+                I build things that
+                <br />
+                go to production.
               </h2>
               <p className="hero-stage__body">{summary}</p>
             </section>
@@ -94,7 +127,9 @@ export default function Home() {
               <div className="skills-list">
                 {skills.map((skill) => (
                   <div key={skill.category} className="skills-row">
-                    <strong className="skills-row__title">{skill.category}</strong>
+                    <strong className="skills-row__title">
+                      {skill.category}
+                    </strong>
                     <p className="skills-row__body">{skill.items}</p>
                   </div>
                 ))}
@@ -157,7 +192,10 @@ export default function Home() {
 
             <footer className="portfolio-footer">
               <p>&copy; 2026 Piyushraj Bista. All rights reserved.</p>
-              <p>Built with Next.js, Supabase, and a preference for clean systems.</p>
+              <p>
+                Built with Next.js, Supabase, and a preference for clean
+                systems.
+              </p>
             </footer>
           </main>
         </div>

@@ -43,6 +43,10 @@ export default function PostList({ onEdit, onNew }: Props) {
   }, []);
 
   async function loadPosts() {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from("posts")
@@ -75,6 +79,7 @@ export default function PostList({ onEdit, onNew }: Props) {
     const previousPosts = posts;
     setPosts((current) => current.filter((post) => post.id !== id));
 
+    if (!supabase) return;
     const { error } = await supabase.from("posts").delete().eq("id", id);
     if (error) {
       setPosts(previousPosts);

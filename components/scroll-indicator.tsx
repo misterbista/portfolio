@@ -2,13 +2,14 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 
-const INDICATOR_HIDE_DELAY = 1500;
+const HIDE_DELAY = 1500;
 
 export default function ScrollIndicator() {
   const [sectionCount, setSectionCount] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tickingRef = useRef(false);
 
   const scrollTo = useCallback((index: number) => {
     const sections = document.querySelectorAll(".section-card");
@@ -17,15 +18,14 @@ export default function ScrollIndicator() {
 
   useEffect(() => {
     function findSections() {
-      const sections = document.querySelectorAll(".section-card");
-      if (sections.length > 0) {
-        setSectionCount(sections.length);
+      const count = document.querySelectorAll(".section-card").length;
+      if (count > 0) {
+        setSectionCount(count);
         return true;
       }
       return false;
     }
 
-    // Try immediately, poll if not found
     if (!findSections()) {
       const interval = setInterval(() => {
         if (findSections()) clearInterval(interval);
@@ -43,9 +43,7 @@ export default function ScrollIndicator() {
 
     const scheduleHide = () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = setTimeout(() => {
-        setIsVisible(false);
-      }, INDICATOR_HIDE_DELAY);
+      hideTimerRef.current = setTimeout(() => setIsVisible(false), HIDE_DELAY);
     };
 
     const update = () => {
@@ -56,6 +54,7 @@ export default function ScrollIndicator() {
 
       if (isBottom) {
         setActiveIndex(sections.length - 1);
+        tickingRef.current = false;
         return;
       }
 
@@ -69,11 +68,15 @@ export default function ScrollIndicator() {
         }
       });
       setActiveIndex(current);
+      tickingRef.current = false;
     };
 
     const onScroll = () => {
       setIsVisible(true);
-      update();
+      if (!tickingRef.current) {
+        tickingRef.current = true;
+        requestAnimationFrame(update);
+      }
       scheduleHide();
     };
 
@@ -91,14 +94,19 @@ export default function ScrollIndicator() {
   if (sectionCount === 0) return null;
 
   return (
-    <div className={`scroll-indicator${isVisible ? " is-visible" : ""}`}>
+    <nav
+      className={`scroll-indicator${isVisible ? " is-visible" : ""}`}
+      aria-label="Page sections"
+    >
       {Array.from({ length: sectionCount }, (_, i) => (
-        <div
+        <button
           key={i}
           className={`scroll-dot${i === activeIndex ? " active" : ""}`}
           onClick={() => scrollTo(i)}
+          aria-label={`Go to section ${i + 1}`}
+          aria-current={i === activeIndex ? "true" : undefined}
         />
       ))}
-    </div>
+    </nav>
   );
 }

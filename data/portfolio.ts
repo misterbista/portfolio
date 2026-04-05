@@ -1,6 +1,6 @@
 export const profile = {
   name: "Piyushraj Bista",
-  title: "Full Stack Developer | Team Lead",
+  title: "Full Stack Developer & Team Lead",
   location: "Kathmandu, Nepal",
   email: "piyushrajbista@outlook.com",
   phone: "+977-9805335286",
@@ -10,7 +10,7 @@ export const profile = {
 };
 
 export const summary =
-  "Experienced Full Stack Developer and Team Lead with a strong background in software development, backend architecture, and project management. Skilled in building scalable web applications using modern technologies like .NET, React, Next.js, and Azure. Proven ability to lead projects from start to finish, ensuring successful delivery.";
+  "I build and ship production systems — from healthcare platforms serving aged care in Australia, to legacy migrations on Dynamics 365, to trading apps in React and .NET. Currently at Tekkon Nepal working across international teams. Previously co-founded a startup, and I still learn something new on most days.";
 
 export const skills = [
   { category: "Languages", items: "C#, JavaScript, TypeScript, Python" },
