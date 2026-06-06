@@ -42,7 +42,6 @@ export default function ScrollMoreButton() {
       onClick={handleClick}
       aria-label="Scroll to content"
     >
-      <span>Scroll to explore</span>
       <FontAwesomeIcon
         icon={faChevronDown}
         className="text-xs animate-scroll-bounce"

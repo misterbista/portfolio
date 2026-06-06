@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { supabase, formatDate } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -38,11 +38,12 @@ export default function PostList({ onEdit, onNew }: Props) {
     type: "success" | "error";
   } | null>(null);
 
-  useEffect(() => {
-    loadPosts();
-  }, []);
+  function showStatus(text: string, type: "success" | "error") {
+    setStatusMsg({ text, type });
+    setTimeout(() => setStatusMsg(null), 4000);
+  }
 
-  async function loadPosts() {
+  const loadPosts = useEffectEvent(async () => {
     if (!supabase) {
       setLoading(false);
       return;
@@ -71,7 +72,15 @@ export default function PostList({ onEdit, onNew }: Props) {
     }));
     setPosts(normalized);
     setLoading(false);
-  }
+  });
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      loadPosts();
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   async function deletePost(id: string, title: string) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
@@ -87,11 +96,6 @@ export default function PostList({ onEdit, onNew }: Props) {
       return;
     }
     showStatus("Post deleted.", "success");
-  }
-
-  function showStatus(text: string, type: "success" | "error") {
-    setStatusMsg({ text, type });
-    setTimeout(() => setStatusMsg(null), 4000);
   }
 
   return (

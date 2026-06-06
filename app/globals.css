@@ -203,7 +203,7 @@
   margin: 0;
   font-size: clamp(2rem, 3.5vw, 2.8rem);
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   color: oklch(0.985 0 0);
   font-weight: 600;
 }
@@ -213,7 +213,7 @@
   color: oklch(0.55 0 0);
   font-size: 0.82rem;
   font-family: var(--font-geist-mono), monospace;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
 
 .portfolio-meta {
@@ -232,7 +232,7 @@
   color: oklch(0.55 0 0);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0;
   text-transform: uppercase;
   font-family: var(--font-geist-mono), monospace;
 }
@@ -370,6 +370,18 @@
   color: oklch(0.65 0 0);
 }
 
+.recent-posts__empty,
+.recent-posts-feature__empty {
+  margin: 0;
+  color: oklch(0.52 0 0);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.recent-posts-feature__empty {
+  margin-top: 1.4rem;
+}
+
 .recent-posts__all {
   display: inline-flex;
   align-items: center;
@@ -418,7 +430,7 @@
   color: oklch(0.52 0 0);
   font-size: 0.7rem;
   font-family: var(--font-geist-mono), monospace;
-  letter-spacing: 0.03em;
+  letter-spacing: 0;
 }
 
 .recent-posts-feature__lead-link,
@@ -433,7 +445,7 @@
   color: oklch(0.97 0 0);
   font-size: clamp(1.85rem, 3vw, 2.85rem);
   line-height: 0.96;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
   transition: color var(--transition-base);
 }
 
@@ -500,7 +512,7 @@
   color: oklch(0.92 0 0);
   font-size: 1rem;
   line-height: 1.3;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   transition: color var(--transition-base);
 }
 
@@ -515,12 +527,11 @@
 .portfolio-main {
   display: flex;
   flex-direction: column;
-  gap: 3.6rem;
+  gap: 3rem;
 }
 
 .hero-stage {
-  padding-bottom: 2.4rem;
-  border-bottom: 1px solid oklch(1 0 0 / 8%);
+  padding: clamp(0.5rem, 2vw, 1rem) 0 0.4rem;
 }
 
 .hero-stage__title {
@@ -529,13 +540,13 @@
   color: oklch(0.985 0 0);
   font-size: clamp(2.4rem, 5.5vw, 4.8rem);
   line-height: 0.95;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
 .hero-stage__body {
   margin: 1.8rem 0 0;
-  max-width: 52ch;
+  max-width: 58ch;
   color: oklch(0.62 0 0);
   font-size: 0.95rem;
   line-height: 1.85;
@@ -559,7 +570,7 @@
   color: oklch(0.55 0 0);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0;
   text-transform: uppercase;
   font-family: var(--font-geist-mono), monospace;
 }
@@ -569,7 +580,7 @@
   color: oklch(0.985 0 0);
   font-size: clamp(1.5rem, 2.2vw, 2.1rem);
   line-height: 1.05;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
@@ -578,6 +589,26 @@
   color: oklch(0.68 0 0);
   font-size: 0.96rem;
   line-height: 1.85;
+}
+
+.focus-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.25rem;
+}
+
+.focus-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid oklch(1 0 0 / 8%);
+  border-radius: 999px;
+  background: oklch(1 0 0 / 2%);
+  color: oklch(0.72 0 0);
+  font-size: 0.78rem;
+  font-weight: 500;
 }
 
 /* Skills */
@@ -634,7 +665,7 @@
   color: oklch(0.88 0 0);
   font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   font-family: var(--font-geist-mono), monospace;
 }
 
@@ -650,7 +681,7 @@
   color: oklch(0.985 0 0);
   font-size: clamp(1.05rem, 1.6vw, 1.25rem);
   line-height: 1.15;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
@@ -687,7 +718,7 @@
   margin: 1rem 0 0;
   color: oklch(0.55 0 0);
   font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   font-family: var(--font-geist-mono), monospace;
 }
 
@@ -953,7 +984,7 @@
   color: oklch(0.985 0 0);
   font-size: clamp(1.6rem, 3.5vw, 2.4rem);
   line-height: 1.05;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   font-weight: 600;
   transition: color var(--transition-base);
 }
@@ -996,7 +1027,7 @@
   color: oklch(0.95 0 0);
   font-size: clamp(1.2rem, 2vw, 1.45rem);
   line-height: 1.15;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   font-weight: 600;
   transition: color var(--transition-base);
 }
@@ -1146,7 +1177,7 @@
   font-size: 0.68rem;
   font-family: var(--font-geist-mono), monospace;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   flex-shrink: 0;
 }
 
@@ -1179,7 +1210,7 @@
   color: oklch(0.985 0 0);
   font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   line-height: 1.05;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
@@ -1216,7 +1247,7 @@
   color: oklch(0.52 0 0);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0;
   text-transform: uppercase;
   font-family: var(--font-geist-mono), monospace;
 }
@@ -1226,7 +1257,7 @@
   color: oklch(0.985 0 0);
   font-size: clamp(1.25rem, 2vw, 1.65rem);
   line-height: 1.05;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
@@ -1465,7 +1496,7 @@
   line-height: 1.25;
   margin-top: 2.2em;
   margin-bottom: 0.8em;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .markdown-body h1 {
@@ -1594,7 +1625,7 @@
   color: oklch(0.95 0 0);
   font-weight: 600;
   font-size: 0.85em;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1642,7 +1673,7 @@
   font-size: 0.6rem;
   font-family: var(--font-geist-mono), monospace;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   line-height: 1;
   min-width: 2.2em;
   text-align: center;
@@ -1791,7 +1822,7 @@
   color: oklch(0.985 0 0);
   font-size: 0.84rem;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   cursor: pointer;
   opacity: 0;
   visibility: hidden;

@@ -3,7 +3,6 @@ import {
   supabase,
   calculateReadingTime,
   formatDate,
-  supabaseConfigError,
 } from "@/lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -33,23 +32,21 @@ export default async function RecentPosts({
         <div className="recent-posts-feature__header">
           <div>
             <span className="section-kicker">Blog</span>
-            <h2 className="section-title">Latest Writing</h2>
+            <h2 className="section-title">Writing</h2>
           </div>
           <Link href="/blog" className="recent-posts-feature__all">
             Explore the blog{" "}
             <FontAwesomeIcon icon={faArrowRight} className="text-[0.65rem]" />
           </Link>
         </div>
-        <p className="text-muted-foreground text-sm py-2">
-          {supabaseConfigError}
+        <p className="recent-posts-feature__empty">
+          Writing is unavailable in this environment.
         </p>
       </section>
     ) : (
       <section className="recent-posts">
-        <h3 className="sidebar-panel-label mb-4">Recent Posts</h3>
-        <p className="text-muted-foreground text-sm py-2">
-          {supabaseConfigError}
-        </p>
+        <h3 className="sidebar-panel-label mb-4">Writing</h3>
+        <p className="recent-posts__empty">Unavailable in this environment.</p>
       </section>
     );
   }
@@ -88,7 +85,7 @@ export default async function RecentPosts({
         <div className="recent-posts-feature__header">
           <div>
             <span className="section-kicker">Blog</span>
-            <h2 className="section-title">Latest Writing</h2>
+            <h2 className="section-title">Writing</h2>
           </div>
           <Link href="/blog" className="recent-posts-feature__all">
             Explore the blog{" "}
@@ -97,7 +94,7 @@ export default async function RecentPosts({
         </div>
 
         {!leadPost ? (
-          <p className="text-muted-foreground text-sm py-2">No posts yet.</p>
+          <p className="recent-posts-feature__empty">No published posts.</p>
         ) : (
           <div className="recent-posts-feature__layout">
             <article className="recent-posts-feature__lead">
@@ -178,10 +175,10 @@ export default async function RecentPosts({
 
   return (
     <section className="recent-posts">
-      <h3 className="sidebar-panel-label mb-4">Recent Posts</h3>
+      <h3 className="sidebar-panel-label mb-4">Writing</h3>
       <ul className="recent-posts__list">
         {!posts || posts.length === 0 ? (
-          <li className="text-muted-foreground text-sm py-2">No posts yet.</li>
+          <li className="recent-posts__empty">No published posts.</li>
         ) : (
           posts.map((post) => (
             <li key={post.slug}>

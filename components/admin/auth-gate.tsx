@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ALLOWED_GITHUB_USER } from "@/lib/constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,13 +14,35 @@ export default function AuthGate({
 }) {
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<"loading" | "unauthorized" | "ready">(
-    "loading"
+    () => (supabase ? "loading" : "ready")
   );
   const hasResolved = useRef(false);
 
+  const checkSession = useEffectEvent((s: Session | null) => {
+    if (!s) {
+      setSession(null);
+      setStatus("ready");
+      return;
+    }
+    const username =
+      (s.user.user_metadata.user_name as string) ||
+      (s.user.user_metadata.preferred_username as string) ||
+      "";
+    if (
+      !ALLOWED_GITHUB_USER ||
+      username.toLowerCase() !== ALLOWED_GITHUB_USER.toLowerCase()
+    ) {
+      supabase?.auth.signOut();
+      setSession(null);
+      setStatus("unauthorized");
+      return;
+    }
+    setSession(s);
+    setStatus("ready");
+  });
+
   useEffect(() => {
     if (!supabase) {
-      setStatus("ready");
       return;
     }
 
@@ -66,29 +88,6 @@ export default function AuthGate({
       clearTimeout(timeout);
     };
   }, []);
-
-  function checkSession(s: Session | null) {
-    if (!s) {
-      setSession(null);
-      setStatus("ready");
-      return;
-    }
-    const username =
-      (s.user.user_metadata.user_name as string) ||
-      (s.user.user_metadata.preferred_username as string) ||
-      "";
-    if (
-      !ALLOWED_GITHUB_USER ||
-      username.toLowerCase() !== ALLOWED_GITHUB_USER.toLowerCase()
-    ) {
-      supabase?.auth.signOut();
-      setSession(null);
-      setStatus("unauthorized");
-      return;
-    }
-    setSession(s);
-    setStatus("ready");
-  }
 
   async function signIn() {
     if (!supabase) return;

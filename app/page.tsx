@@ -13,6 +13,7 @@ import RecentPosts from "@/components/recent-posts";
 import {
   education,
   experience,
+  focusAreas,
   profile,
   skills,
   softSkills,
@@ -110,9 +111,7 @@ export default function Home() {
           <main className="portfolio-main">
             <section className="hero-stage">
               <h2 className="hero-stage__title">
-                I build things that
-                <br />
-                go to production.
+                Reliable software for work that cannot stall.
               </h2>
               <p className="hero-stage__body">{summary}</p>
             </section>
@@ -123,7 +122,14 @@ export default function Home() {
 
             <section className="section-card">
               <span className="section-kicker">Capabilities</span>
-              <h2 className="section-title">What I build</h2>
+              <h2 className="section-title">Core Work</h2>
+              <div className="focus-list" aria-label="Focus areas">
+                {focusAreas.map((area) => (
+                  <span key={area} className="focus-pill">
+                    {area}
+                  </span>
+                ))}
+              </div>
               <div className="skills-list">
                 {skills.map((skill) => (
                   <div key={skill.category} className="skills-row">
@@ -138,7 +144,7 @@ export default function Home() {
 
             <section className="section-card">
               <span className="section-kicker">Experience</span>
-              <h2 className="section-title">Work History</h2>
+              <h2 className="section-title">Selected Roles</h2>
               <div className="experience-list">
                 {experience.map((exp) => (
                   <article
@@ -166,7 +172,7 @@ export default function Home() {
             <section className="section-card section-card--split">
               <div>
                 <span className="section-kicker">Education</span>
-                <h2 className="section-title">Academic Background</h2>
+                <h2 className="section-title">Education</h2>
                 <p className="section-body">
                   <strong className="text-foreground font-semibold">
                     {education.degree}
@@ -179,7 +185,7 @@ export default function Home() {
 
               <div>
                 <span className="section-kicker">Soft Skills</span>
-                <h2 className="section-title">How I Work</h2>
+                <h2 className="section-title">Working Style</h2>
                 <ul className="soft-skill-list">
                   {softSkills.map((skill, index) => (
                     <li key={index} className="soft-skill-item">
@@ -192,10 +198,7 @@ export default function Home() {
 
             <footer className="portfolio-footer">
               <p>&copy; 2026 Piyushraj Bista. All rights reserved.</p>
-              <p>
-                Built with Next.js, Supabase, and a preference for clean
-                systems.
-              </p>
+              <p>Built with Next.js and Supabase.</p>
             </footer>
           </main>
         </div>

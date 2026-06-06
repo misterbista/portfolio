@@ -10,7 +10,9 @@ export default function ViewCounter({
   slug: string;
   initialCount: number;
 }) {
-  const [count, setCount] = useState(initialCount);
+  const [incrementedSlugs, setIncrementedSlugs] = useState<
+    Record<string, number>
+  >({});
 
   const incrementView = useCallback(async () => {
     const storageKey = `viewed-post:${slug}`;
@@ -30,19 +32,24 @@ export default function ViewCounter({
         return;
       }
 
-      setCount((c) => c + 1);
+      setIncrementedSlugs((current) => ({
+        ...current,
+        [slug]: (current[slug] || 0) + 1,
+      }));
     } catch {
       sessionStorage.removeItem(storageKey);
     }
   }, [slug]);
 
   useEffect(() => {
-    setCount(initialCount);
-  }, [initialCount]);
+    const timeout = window.setTimeout(() => {
+      incrementView();
+    }, 0);
 
-  useEffect(() => {
-    incrementView();
+    return () => window.clearTimeout(timeout);
   }, [incrementView]);
+
+  const count = initialCount + (incrementedSlugs[slug] || 0);
 
   return (
     <span className="post-metrics__value">

@@ -86,7 +86,11 @@ export default function PostEditor({ postId, onBack }: Props) {
       setSeriesList(seriesRes.data || []);
     });
     if (postId) {
-      loadPost(postId);
+      const timeout = window.setTimeout(() => {
+        loadPost(postId);
+      }, 0);
+
+      return () => window.clearTimeout(timeout);
     } else {
       initialTagIdsRef.current = new Set();
     }
