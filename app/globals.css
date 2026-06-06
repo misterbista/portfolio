@@ -187,6 +187,10 @@
 .portfolio-shell {
   position: relative;
   z-index: 1;
+  --portfolio-shell-pad-x: clamp(1.25rem, 5vw, 4rem);
+  --portfolio-shell-pad-y: clamp(1.5rem, 5vw, 4rem);
+  --portfolio-rail-gap: clamp(3rem, 8vw, 7rem);
+  --portfolio-rail-width: 320px;
 }
 
 .portfolio-rail {
@@ -773,6 +777,25 @@
 
   .portfolio-footer {
     flex-direction: column;
+  }
+}
+
+@media (min-width: 1280px) {
+  .portfolio-shell {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .portfolio-rail {
+    position: fixed;
+    top: var(--portfolio-shell-pad-y);
+    left: var(--portfolio-shell-pad-x);
+    width: var(--portfolio-rail-width);
+    max-height: calc(100vh - var(--portfolio-shell-pad-y) - var(--portfolio-shell-pad-y));
+  }
+
+  .portfolio-main {
+    margin-left: calc(var(--portfolio-rail-width) + var(--portfolio-rail-gap));
   }
 }
 

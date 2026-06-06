@@ -24,91 +24,84 @@ export default function Home() {
   return (
     <div className="home-viewport-mask">
       <DotMatrixBackground />
-      <div className="animate-fade-in-up">
-        <div className="portfolio-shell grid min-h-screen grid-cols-1 gap-x-[clamp(3rem,8vw,7rem)] gap-y-12 px-[clamp(1.25rem,5vw,4rem)] py-[clamp(1.5rem,5vw,4rem)] xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]">
-          <aside className="portfolio-rail xl:sticky xl:top-[clamp(2rem,4vw,3rem)] xl:self-start">
-            <header className="portfolio-identity">
-              <h1 className="portfolio-name">{profile.name}</h1>
-              <p className="portfolio-role">{profile.title}</p>
-              <p className="portfolio-meta">
+      <div className="portfolio-shell grid min-h-screen grid-cols-1 gap-x-[clamp(3rem,8vw,7rem)] gap-y-12 px-[clamp(1.25rem,5vw,4rem)] py-[clamp(1.5rem,5vw,4rem)] xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]">
+        <aside className="portfolio-rail">
+          <header className="portfolio-identity">
+            <h1 className="portfolio-name">{profile.name}</h1>
+            <p className="portfolio-role">{profile.title}</p>
+            <p className="portfolio-meta">
+              <FontAwesomeIcon icon={faLocationDot} className="mr-1.5" />
+              {profile.location}
+            </p>
+          </header>
+
+          <div className="portfolio-rail-block">
+            <p className="sidebar-panel-label">Connect</p>
+            <div className="portfolio-contact-list">
+              <a href={`mailto:${profile.email}`} className="portfolio-text-link">
+                <span className="portfolio-text-link__label">
+                  <span className="portfolio-text-link__icon">
+                    <FontAwesomeIcon icon={faEnvelope} />
+                  </span>
+                  Email
+                </span>
+                <span className="portfolio-text-link__value">
+                  {profile.email}
+                </span>
+              </a>
+              <a
+                href={`tel:${profile.phone.replace(/-/g, "")}`}
+                className="portfolio-text-link"
+              >
+                <span className="portfolio-text-link__label">
+                  <span className="portfolio-text-link__icon">
+                    <FontAwesomeIcon icon={faPhone} />
+                  </span>
+                  Phone
+                </span>
+                <span className="portfolio-text-link__value">
+                  {profile.phone}
+                </span>
+              </a>
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="portfolio-text-link"
+              >
+                <span className="portfolio-text-link__label">
+                  <span className="portfolio-text-link__icon">
+                    <FontAwesomeIcon icon={faLinkedin} />
+                  </span>
+                  LinkedIn
+                </span>
                 <FontAwesomeIcon
-                  icon={faLocationDot}
-                  className="mr-1.5"
+                  icon={faArrowRight}
+                  className="portfolio-text-link__arrow"
                 />
-                {profile.location}
-              </p>
-            </header>
-
-            <div className="portfolio-rail-block">
-              <p className="sidebar-panel-label">Connect</p>
-              <div className="portfolio-contact-list">
-                <a
-                  href={`mailto:${profile.email}`}
-                  className="portfolio-text-link"
-                >
-                  <span className="portfolio-text-link__label">
-                    <span className="portfolio-text-link__icon">
-                      <FontAwesomeIcon icon={faEnvelope} />
-                    </span>
-                    Email
+              </a>
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="github-tooltip portfolio-text-link"
+              >
+                <span className="portfolio-text-link__label">
+                  <span className="portfolio-text-link__icon">
+                    <FontAwesomeIcon icon={faGithub} />
                   </span>
-                  <span className="portfolio-text-link__value">
-                    {profile.email}
-                  </span>
-                </a>
-                <a
-                  href={`tel:${profile.phone.replace(/-/g, "")}`}
-                  className="portfolio-text-link"
-                >
-                  <span className="portfolio-text-link__label">
-                    <span className="portfolio-text-link__icon">
-                      <FontAwesomeIcon icon={faPhone} />
-                    </span>
-                    Phone
-                  </span>
-                  <span className="portfolio-text-link__value">
-                    {profile.phone}
-                  </span>
-                </a>
-                <a
-                  href={profile.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="portfolio-text-link"
-                >
-                  <span className="portfolio-text-link__label">
-                    <span className="portfolio-text-link__icon">
-                      <FontAwesomeIcon icon={faLinkedin} />
-                    </span>
-                    LinkedIn
-                  </span>
-                  <FontAwesomeIcon
-                    icon={faArrowRight}
-                    className="portfolio-text-link__arrow"
-                  />
-                </a>
-                <a
-                  href={profile.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="github-tooltip portfolio-text-link"
-                >
-                  <span className="portfolio-text-link__label">
-                    <span className="portfolio-text-link__icon">
-                      <FontAwesomeIcon icon={faGithub} />
-                    </span>
-                    GitHub
-                  </span>
-                  <FontAwesomeIcon
-                    icon={faArrowRight}
-                    className="portfolio-text-link__arrow"
-                  />
-                </a>
-              </div>
+                  GitHub
+                </span>
+                <FontAwesomeIcon
+                  icon={faArrowRight}
+                  className="portfolio-text-link__arrow"
+                />
+              </a>
             </div>
-          </aside>
+          </div>
+        </aside>
 
-          <main className="portfolio-main">
+        <main className="portfolio-main animate-fade-in-up">
             <section className="hero-stage">
               <h2 className="hero-stage__title">
                 Reliable software for work that cannot stall.
@@ -201,7 +194,6 @@ export default function Home() {
               <p>Built with Next.js and Supabase.</p>
             </footer>
           </main>
-        </div>
       </div>
 
       <ScrollMoreButton />
