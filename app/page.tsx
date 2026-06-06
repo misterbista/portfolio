@@ -7,9 +7,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
-import DotMatrixBackground from "@/components/dot-matrix-background";
-import ScrollIndicator from "@/components/scroll-indicator";
-import ScrollMoreButton from "@/components/scroll-more-button";
 import {
   formatDate,
   supabase,
@@ -64,7 +61,6 @@ export default async function Home() {
 
   return (
     <div className="home-viewport-mask">
-      <DotMatrixBackground />
       <div className="portfolio-shell grid min-h-screen grid-cols-1 gap-x-[clamp(3rem,8vw,7rem)] gap-y-12 px-[clamp(1.25rem,5vw,4rem)] py-[clamp(1.5rem,5vw,4rem)] xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]">
         <aside className="portfolio-rail">
           <header className="portfolio-identity">
@@ -273,8 +269,6 @@ export default async function Home() {
         </main>
       </div>
 
-      <ScrollMoreButton />
-      <ScrollIndicator />
     </div>
   );
 }

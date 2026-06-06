@@ -8,7 +8,7 @@ export default function BlogNav({ showBlogLink = true }: Props) {
   return (
     <nav className="blog-nav" aria-label="Site navigation">
       <Link href="/" className="blog-nav__brand" prefetch>
-        PB
+        Piyushraj Bista
       </Link>
 
       <div className="blog-nav__links">

@@ -1,7 +1,6 @@
 import {
   supabase,
   formatDate,
-  calculateReadingTime,
   supabaseConfigError,
 } from "@/lib/supabase";
 import type { Metadata } from "next";
@@ -12,7 +11,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
   faArrowRight,
-  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { cache } from "react";
 
@@ -43,7 +41,7 @@ const getPublishedSeriesPosts = cache(async (seriesId: string) => {
 
   const { data } = await supabase
     .from("posts")
-    .select("title, slug, excerpt, content, created_at")
+    .select("title, slug, excerpt, created_at")
     .eq("series_id", seriesId)
     .eq("published", true)
     .order("series_order");
@@ -119,7 +117,6 @@ export default async function SeriesPage({ params }: Props) {
       ) : (
         <div className="flex flex-col">
           {posts.map((post, i) => {
-            const readingTime = calculateReadingTime(post.content);
             const isLast = i === posts.length - 1;
 
             return (
@@ -151,14 +148,6 @@ export default async function SeriesPage({ params }: Props) {
                     <time dateTime={post.created_at}>
                       {formatDate(post.created_at)}
                     </time>
-                    <span className="text-[0.5rem]">&middot;</span>
-                    <span className="inline-flex items-center gap-1">
-                      <FontAwesomeIcon
-                        icon={faClock}
-                        className="text-[0.5rem]"
-                      />
-                      {readingTime} min
-                    </span>
                     <FontAwesomeIcon
                       icon={faArrowRight}
                       className="text-[0.5rem] ml-auto opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5"

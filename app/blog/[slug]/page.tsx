@@ -17,11 +17,6 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import TableOfContents from "@/components/blog/table-of-contents";
 import TagBadges from "@/components/blog/tag-badges";
 import SeriesNav from "@/components/blog/series-nav";
-import ViewCounter from "@/components/blog/view-counter";
-import Reactions from "@/components/blog/reactions";
-import CommentsPanel from "@/components/blog/comments-panel";
-import ReadingProgress from "@/components/blog/reading-progress";
-import SharePost from "@/components/blog/share-post";
 import { cache } from "react";
 
 type FullPost = Post & {
@@ -124,87 +119,67 @@ export default async function PostPage({ params }: Props) {
   }
 
   return (
-    <>
-      <ReadingProgress />
-      <div className="blog-shell blog-post-shell">
-        <BlogNav showBlogLink={false} />
+    <div className="blog-shell blog-post-shell">
+      <BlogNav showBlogLink={false} />
 
-        <div className="blog-post-layout">
-          <aside className="blog-post-aside">
-            <Link href="/blog" className="blog-post-backlink">
-              <FontAwesomeIcon icon={faArrowLeft} className="text-[0.65rem]" />
-              All posts
-            </Link>
+      <div className="blog-post-layout">
+        <aside className="blog-post-aside">
+          <Link href="/blog" className="blog-post-backlink">
+            <FontAwesomeIcon icon={faArrowLeft} className="text-[0.65rem]" />
+            All posts
+          </Link>
 
-            <div className="blog-post-aside__share">
-              <SharePost title={post.title} slug={slug} />
-            </div>
+          <div className="blog-post-aside__toc">
+            <TableOfContents items={toc} />
+          </div>
+        </aside>
 
-            <div className="blog-post-aside__toc">
-              <TableOfContents items={toc} />
-            </div>
-          </aside>
-
-          <article className="blog-post-article">
-            <header className="blog-post-header">
-              <h1 className="blog-post-title">{post.title}</h1>
-              {post.excerpt && (
-                <p className="blog-post-excerpt">{post.excerpt}</p>
+        <article className="blog-post-article">
+          <header className="blog-post-header">
+            <h1 className="blog-post-title">{post.title}</h1>
+            {post.excerpt && (
+              <p className="blog-post-excerpt">{post.excerpt}</p>
+            )}
+            <div className="blog-post-header__meta">
+              <time dateTime={post.created_at}>
+                {formatDate(post.created_at)}
+              </time>
+              <span>{readingTime} min read</span>
+              {post.categories && (
+                <Link href={`/blog?category=${post.categories.slug}`}>
+                  {post.categories.name}
+                </Link>
               )}
-              <div className="blog-post-header__meta">
-                <time dateTime={post.created_at}>
-                  {formatDate(post.created_at)}
-                </time>
-                <span>{readingTime} min read</span>
-                <span>
-                  <ViewCounter slug={slug} initialCount={post.view_count} /> views
-                </span>
-                {post.categories && (
-                  <Link href={`/blog?category=${post.categories.slug}`}>
-                    {post.categories.name}
-                  </Link>
-                )}
-              </div>
-              {tags.length > 0 && (
-                <div className="blog-post-header__tags">
-                  <TagBadges tags={tags} />
-                </div>
-              )}
-            </header>
-
-            <div
-              className="markdown-body"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-
-            {post.series && seriesPosts.length > 0 && (
-              <div className="mt-14">
-                <SeriesNav
-                  seriesName={post.series.name}
-                  seriesSlug={post.series.slug}
-                  posts={seriesPosts}
-                  currentSlug={slug}
-                />
+            </div>
+            {tags.length > 0 && (
+              <div className="blog-post-header__tags">
+                <TagBadges tags={tags} />
               </div>
             )}
+          </header>
 
-            <div className="blog-post-engagement">
-              <div>
-                <p className="comments-panel__eyebrow">Engagement</p>
-                <h2 className="comments-panel__title">Reactions</h2>
-              </div>
-              <Reactions postId={post.id} />
+          <div
+            className="markdown-body"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+
+          {post.series && seriesPosts.length > 0 && (
+            <div className="mt-14">
+              <SeriesNav
+                seriesName={post.series.name}
+                seriesSlug={post.series.slug}
+                posts={seriesPosts}
+                currentSlug={slug}
+              />
             </div>
-
-            <CommentsPanel postId={post.id} />
-          </article>
-        </div>
-
-        <footer className="mt-20 pt-8 border-t border-border text-muted-foreground text-xs font-mono">
-          <p>&copy; 2026 Piyushraj Bista. All rights reserved.</p>
-        </footer>
+          )}
+        </article>
       </div>
-    </>
+
+      <footer className="mt-20 pt-8 border-t border-border text-muted-foreground text-xs font-mono">
+        <p>&copy; 2026 Piyushraj Bista. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }
 

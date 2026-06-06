@@ -30,6 +30,13 @@ type RawPostRow = Omit<PostWithCategory, "categories" | "post_tags"> & {
   post_tags?: { tags: Tag[] | Tag }[];
 };
 
+type SeriesLink = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+};
+
 const POSTS_PER_PAGE = 14;
 export const revalidate = 30;
 
@@ -87,7 +94,15 @@ export default async function BlogPage({ searchParams }: Props) {
     );
   }
 
-  const { data, count } = await query.range(from, to);
+  const [postsRes, seriesRes] = await Promise.all([
+    query.range(from, to),
+    supabase
+      .from("series")
+      .select("id, name, slug, description")
+      .order("name"),
+  ]);
+
+  const { data, count } = postsRes;
   const posts = ((data || []) as unknown as RawPostRow[]).map((post) => ({
     title: post.title,
     slug: post.slug,
@@ -104,6 +119,7 @@ export default async function BlogPage({ searchParams }: Props) {
 
   return renderPage({
     posts,
+    series: (seriesRes.data || []) as SeriesLink[],
     totalPages,
     currentPage,
     search: searchText,
@@ -112,12 +128,14 @@ export default async function BlogPage({ searchParams }: Props) {
 
 function renderPage({
   posts,
+  series = [],
   totalPages,
   currentPage,
   search,
   unavailableMessage,
 }: {
   posts: PostWithCategory[];
+  series?: SeriesLink[];
   totalPages: number;
   currentPage: number;
   search?: string;
@@ -157,96 +175,115 @@ function renderPage({
       {hasSearch && (
         <div className="blog-filter-status">
           <span>Search results for &quot;{search}&quot;</span>
-          <Link href="/blog" prefetch>
-            <FontAwesomeIcon icon={faXmark} />
-            Clear
-          </Link>
         </div>
       )}
 
-      {posts.length === 0 ? (
-        <div className="blog-empty-state">
-          <p>
-            {unavailableMessage
-              ? unavailableMessage
-              : hasSearch
-              ? "No posts match your search."
-              : "No posts yet. Check back soon."}
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="blog-stream">
-            {posts.map((post) => {
-              const tags = post.post_tags?.map((item) => item.tags) || [];
+      <div className={series.length > 0 ? "blog-content-layout" : ""}>
+        <div className="min-w-0">
+          {posts.length === 0 ? (
+            <div className="blog-empty-state">
+              <p>
+                {unavailableMessage
+                  ? unavailableMessage
+                  : hasSearch
+                  ? "No posts match your search."
+                  : "No posts yet. Check back soon."}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="blog-stream">
+                {posts.map((post) => {
+                  const tags = post.post_tags?.map((item) => item.tags) || [];
 
-              return (
-                <article key={post.slug} className="blog-stream__item">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="blog-stream__link"
-                    prefetch
-                  >
-                    <div className="blog-stream__meta">
-                      <time dateTime={post.created_at}>
-                        {formatDate(post.created_at)}
-                      </time>
-                      {post.categories && <span>{post.categories.name}</span>}
-                    </div>
-                    <h2 className="blog-stream__title">{post.title}</h2>
-                    {post.excerpt && (
-                      <p className="blog-stream__excerpt">{post.excerpt}</p>
-                    )}
-                  </Link>
-                  {tags.length > 0 && (
-                    <div className="blog-stream__tags">
-                      <TagBadges tags={tags} />
-                    </div>
+                  return (
+                    <article key={post.slug} className="blog-stream__item">
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="blog-stream__link"
+                        prefetch
+                      >
+                        <div className="blog-stream__meta">
+                          <time dateTime={post.created_at}>
+                            {formatDate(post.created_at)}
+                          </time>
+                          {post.categories && <span>{post.categories.name}</span>}
+                        </div>
+                        <h2 className="blog-stream__title">{post.title}</h2>
+                        {post.excerpt && (
+                          <p className="blog-stream__excerpt">{post.excerpt}</p>
+                        )}
+                      </Link>
+                      {tags.length > 0 && (
+                        <div className="blog-stream__tags">
+                          <TagBadges tags={tags} />
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+
+              {totalPages > 1 && (
+                <nav className="blog-pagination" aria-label="Pagination">
+                  {currentPage > 1 ? (
+                    <Link
+                      href={buildUrl({
+                        page: String(currentPage - 1),
+                        search,
+                      })}
+                      rel="prev"
+                      prefetch
+                    >
+                      <FontAwesomeIcon icon={faChevronLeft} />
+                      Previous
+                    </Link>
+                  ) : (
+                    <span />
                   )}
-                </article>
-              );
-            })}
-          </div>
-
-          {totalPages > 1 && (
-            <nav className="blog-pagination" aria-label="Pagination">
-              {currentPage > 1 ? (
-                <Link
-                  href={buildUrl({
-                    page: String(currentPage - 1),
-                    search,
-                  })}
-                  rel="prev"
-                  prefetch
-                >
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                  Previous
-                </Link>
-              ) : (
-                <span />
+                  <span>
+                    {currentPage} / {totalPages}
+                  </span>
+                  {currentPage < totalPages ? (
+                    <Link
+                      href={buildUrl({
+                        page: String(currentPage + 1),
+                        search,
+                      })}
+                      rel="next"
+                      prefetch
+                    >
+                      Next
+                      <FontAwesomeIcon icon={faChevronRight} />
+                    </Link>
+                  ) : (
+                    <span />
+                  )}
+                </nav>
               )}
-              <span>
-                {currentPage} / {totalPages}
-              </span>
-              {currentPage < totalPages ? (
-                <Link
-                  href={buildUrl({
-                    page: String(currentPage + 1),
-                    search,
-                  })}
-                  rel="next"
-                  prefetch
-                >
-                  Next
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </Link>
-              ) : (
-                <span />
-              )}
-            </nav>
+            </>
           )}
-        </>
-      )}
+        </div>
+
+        {series.length > 0 && (
+          <aside className="blog-series-list" aria-label="Series">
+            <h2>Series</h2>
+            <div>
+              {series.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/blog/series/${item.slug}`}
+                  className="blog-series-list__item"
+                  prefetch
+                >
+                  <span>{item.name}</span>
+                  {item.description && <small>{item.description}</small>}
+                </Link>
+              ))}
+            </div>
+          </aside>
+        )}
+      </div>
 
       <footer className="mt-20 pt-8 border-t border-border text-muted-foreground text-xs font-mono">
         <p>&copy; 2026 Piyushraj Bista. All rights reserved.</p>
