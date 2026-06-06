@@ -136,55 +136,11 @@ export default async function PostPage({ params }: Props) {
               All posts
             </Link>
 
-            {/* Author */}
-            <div className="post-author">
-              <div className="post-author__avatar">PB</div>
-              <div>
-                <p className="post-author__name">Piyushraj Bista</p>
-                <p className="post-author__role">Full Stack Developer</p>
-              </div>
-            </div>
-
-            {/* Metrics */}
-            <div className="post-metrics">
-              <div className="post-metrics__item">
-                <span className="post-metrics__label">Published</span>
-                <time dateTime={post.created_at} className="post-metrics__value">
-                  {formatDate(post.created_at)}
-                </time>
-              </div>
-              <div className="post-metrics__item">
-                <span className="post-metrics__label">Read time</span>
-                <span className="post-metrics__value">{readingTime} min</span>
-              </div>
-              <div className="post-metrics__item">
-                <span className="post-metrics__label">Views</span>
-                <ViewCounter slug={slug} initialCount={post.view_count} />
-              </div>
-              {post.categories && (
-                <div className="post-metrics__item">
-                  <span className="post-metrics__label">Category</span>
-                  <Link
-                    href={`/blog?category=${post.categories.slug}`}
-                    className="post-metrics__value post-metrics__link"
-                  >
-                    {post.categories.name}
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {tags.length > 0 && (
-              <div className="mt-5">
-                <TagBadges tags={tags} />
-              </div>
-            )}
-
-            <div className="mt-5">
+            <div className="blog-post-aside__share">
               <SharePost title={post.title} slug={slug} />
             </div>
 
-            <div className="mt-8">
+            <div className="blog-post-aside__toc">
               <TableOfContents items={toc} />
             </div>
           </aside>
@@ -194,6 +150,25 @@ export default async function PostPage({ params }: Props) {
               <h1 className="blog-post-title">{post.title}</h1>
               {post.excerpt && (
                 <p className="blog-post-excerpt">{post.excerpt}</p>
+              )}
+              <div className="blog-post-header__meta">
+                <time dateTime={post.created_at}>
+                  {formatDate(post.created_at)}
+                </time>
+                <span>{readingTime} min read</span>
+                <span>
+                  <ViewCounter slug={slug} initialCount={post.view_count} /> views
+                </span>
+                {post.categories && (
+                  <Link href={`/blog?category=${post.categories.slug}`}>
+                    {post.categories.name}
+                  </Link>
+                )}
+              </div>
+              {tags.length > 0 && (
+                <div className="blog-post-header__tags">
+                  <TagBadges tags={tags} />
+                </div>
               )}
             </header>
 
