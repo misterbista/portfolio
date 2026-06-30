@@ -161,7 +161,11 @@ export default async function Home() {
                   <time dateTime={latestWriting.created_at}>
                     {formatDate(latestWriting.created_at)}
                   </time>
-                  {latestWriting.category && <span>{latestWriting.category}</span>}
+                  {latestWriting.category && (
+                    <span className="focus-pill writing-bridge__category">
+                      {latestWriting.category}
+                    </span>
+                  )}
                 </div>
                 {latestWriting.excerpt && (
                   <p className="section-body">{latestWriting.excerpt}</p>
