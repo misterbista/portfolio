@@ -37,6 +37,12 @@ type SeriesLink = {
   description: string | null;
 };
 
+type CategoryLink = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 const POSTS_PER_PAGE = 14;
 export const revalidate = 30;
 
@@ -50,6 +56,8 @@ type Props = {
   searchParams: Promise<{
     page?: string;
     search?: string;
+    category?: string;
+    tag?: string;
   }>;
 };
 
@@ -63,11 +71,13 @@ function buildUrl(params: Record<string, string | undefined>) {
 }
 
 export default async function BlogPage({ searchParams }: Props) {
-  const { page, search } = await searchParams;
+  const { page, search, category, tag } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || "1", 10) || 1);
   const from = (currentPage - 1) * POSTS_PER_PAGE;
   const to = from + POSTS_PER_PAGE - 1;
   const searchText = search?.trim() || undefined;
+  const categorySlug = category?.trim() || undefined;
+  const tagSlug = tag?.trim() || undefined;
 
   if (!supabase) {
     return renderPage({
@@ -75,14 +85,22 @@ export default async function BlogPage({ searchParams }: Props) {
       totalPages: 0,
       currentPage,
       search: searchText,
+      category: categorySlug,
+      tag: tagSlug,
       unavailableMessage: supabaseConfigError ?? "Blog content is unavailable.",
     });
   }
 
+  const categoryRelation = categorySlug
+    ? "categories!inner(name, slug)"
+    : "categories(name, slug)";
+  const tagRelation = tagSlug
+    ? "post_tags!inner(tags!inner(id, name, slug))"
+    : "post_tags(tags(id, name, slug))";
   let query = supabase
     .from("posts")
     .select(
-      "title, slug, excerpt, created_at, categories(name, slug), post_tags(tags(id, name, slug))",
+      `title, slug, excerpt, created_at, ${categoryRelation}, ${tagRelation}`,
       { count: "exact" }
     )
     .eq("published", true)
@@ -93,12 +111,18 @@ export default async function BlogPage({ searchParams }: Props) {
       `title.ilike.%${searchText}%,excerpt.ilike.%${searchText}%`
     );
   }
+  if (categorySlug) query = query.eq("categories.slug", categorySlug);
+  if (tagSlug) query = query.eq("post_tags.tags.slug", tagSlug);
 
-  const [postsRes, seriesRes] = await Promise.all([
+  const [postsRes, seriesRes, categoriesRes] = await Promise.all([
     query.range(from, to),
     supabase
       .from("series")
       .select("id, name, slug, description")
+      .order("name"),
+    supabase
+      .from("categories")
+      .select("id, name, slug")
       .order("name"),
   ]);
 
@@ -120,28 +144,38 @@ export default async function BlogPage({ searchParams }: Props) {
   return renderPage({
     posts,
     series: (seriesRes.data || []) as SeriesLink[],
+    categories: (categoriesRes.data || []) as CategoryLink[],
     totalPages,
     currentPage,
     search: searchText,
+    category: categorySlug,
+    tag: tagSlug,
   });
 }
 
 function renderPage({
   posts,
   series = [],
+  categories = [],
   totalPages,
   currentPage,
   search,
+  category,
+  tag,
   unavailableMessage,
 }: {
   posts: PostWithCategory[];
   series?: SeriesLink[];
+  categories?: CategoryLink[];
   totalPages: number;
   currentPage: number;
   search?: string;
+  category?: string;
+  tag?: string;
   unavailableMessage?: string;
 }) {
   const hasSearch = !!search;
+  const hasFilters = hasSearch || !!category || !!tag;
 
   return (
     <div className="blog-shell">
@@ -149,6 +183,8 @@ function renderPage({
 
       <div className="blog-searchbar">
         <form method="GET" action="/blog" className="blog-searchbar__form">
+          {category && <input type="hidden" name="category" value={category} />}
+          {tag && <input type="hidden" name="tag" value={tag} />}
           <div className="blog-searchbar__field">
             <FontAwesomeIcon
               icon={faMagnifyingGlass}
@@ -163,7 +199,7 @@ function renderPage({
               aria-label="Search posts"
             />
           </div>
-          {search && (
+          {hasFilters && (
             <Link href="/blog" className="blog-searchbar__clear" prefetch>
               <FontAwesomeIcon icon={faXmark} />
               Clear
@@ -172,21 +208,27 @@ function renderPage({
         </form>
       </div>
 
-      {hasSearch && (
+      {hasFilters && (
         <div className="blog-filter-status">
-          <span>Search results for &quot;{search}&quot;</span>
+          <span>
+            {search && `Search results for “${search}”`}
+            {search && (category || tag) && " · "}
+            {category && `Category: ${category}`}
+            {category && tag && " · "}
+            {tag && `Tag: #${tag}`}
+          </span>
         </div>
       )}
 
-      <div className={series.length > 0 ? "blog-content-layout" : ""}>
+      <div className={series.length > 0 || categories.length > 0 ? "blog-content-layout" : ""}>
         <div className="min-w-0">
           {posts.length === 0 ? (
             <div className="blog-empty-state">
               <p>
                 {unavailableMessage
                   ? unavailableMessage
-                  : hasSearch
-                  ? "No posts match your search."
+                  : hasFilters
+                  ? "No posts match the current filters."
                   : "No posts yet. Check back soon."}
               </p>
             </div>
@@ -198,17 +240,17 @@ function renderPage({
 
                   return (
                     <article key={post.slug} className="blog-stream__item">
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="blog-stream__link"
-                        prefetch
-                      >
-                        <div className="blog-stream__meta">
-                          <time dateTime={post.created_at}>
-                            {formatDate(post.created_at)}
-                          </time>
-                          {post.categories && <span>{post.categories.name}</span>}
-                        </div>
+                      <div className="blog-stream__meta">
+                        <time dateTime={post.created_at}>
+                          {formatDate(post.created_at)}
+                        </time>
+                        {post.categories && (
+                          <Link href={buildUrl({ category: post.categories.slug, tag, search })} prefetch>
+                            {post.categories.name}
+                          </Link>
+                        )}
+                      </div>
+                      <Link href={`/blog/${post.slug}`} className="blog-stream__link" prefetch>
                         <h2 className="blog-stream__title">{post.title}</h2>
                         {post.excerpt && (
                           <p className="blog-stream__excerpt">{post.excerpt}</p>
@@ -216,7 +258,7 @@ function renderPage({
                       </Link>
                       {tags.length > 0 && (
                         <div className="blog-stream__tags">
-                          <TagBadges tags={tags} />
+                          <TagBadges tags={tags} category={category} search={search} />
                         </div>
                       )}
                     </article>
@@ -231,6 +273,8 @@ function renderPage({
                       href={buildUrl({
                         page: String(currentPage - 1),
                         search,
+                        category,
+                        tag,
                       })}
                       rel="prev"
                       prefetch
@@ -249,6 +293,8 @@ function renderPage({
                       href={buildUrl({
                         page: String(currentPage + 1),
                         search,
+                        category,
+                        tag,
                       })}
                       rel="next"
                       prefetch
@@ -265,10 +311,20 @@ function renderPage({
           )}
         </div>
 
-        {series.length > 0 && (
+        {(series.length > 0 || categories.length > 0) && (
           <aside className="blog-series-list" aria-label="Series">
-            <h2>Series</h2>
-            <div>
+            {categories.length > 0 && <>
+              <h2>Categories</h2>
+              <div>
+                <Link href={buildUrl({ search, tag })} className={`blog-series-list__item ${!category ? "is-active" : ""}`} prefetch><span>All writing</span></Link>
+                {categories.map((item) => (
+                  <Link key={item.id} href={buildUrl({ category: item.slug, tag, search })} className={`blog-series-list__item ${category === item.slug ? "is-active" : ""}`} prefetch><span>{item.name}</span></Link>
+                ))}
+              </div>
+            </>}
+            {series.length > 0 && <>
+              <h2 className={categories.length > 0 ? "mt-8" : ""}>Series</h2>
+              <div>
               {series.map((item) => (
                 <Link
                   key={item.id}
@@ -280,7 +336,8 @@ function renderPage({
                   {item.description && <small>{item.description}</small>}
                 </Link>
               ))}
-            </div>
+              </div>
+            </>}
           </aside>
         )}
       </div>

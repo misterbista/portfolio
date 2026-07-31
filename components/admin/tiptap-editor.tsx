@@ -235,7 +235,7 @@ export default function TiptapEditor({ content, onChange }: Props) {
       </div>
 
       {notice && <p className="tiptap-notice" role="status">{notice}</p>}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="tiptap-editor-content" />
 
       {dialog && (
         <div className="tiptap-dialog-backdrop" role="presentation" onMouseDown={closeDialog}>

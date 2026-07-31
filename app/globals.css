@@ -1043,6 +1043,16 @@
   font-family: var(--font-geist-mono), monospace;
 }
 
+.blog-stream__meta a {
+  color: oklch(0.62 0 0);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.blog-stream__meta a:hover {
+  color: oklch(0.985 0 0);
+}
+
 .blog-stream__link,
 .blog-post-backlink {
   color: inherit;
@@ -1172,6 +1182,14 @@
 
 .blog-series-list__item:hover span {
   color: oklch(0.985 0 0);
+}
+
+.blog-series-list__item.is-active span {
+  color: oklch(0.985 0 0);
+}
+
+.blog-series-list__item.is-active {
+  border-color: oklch(1 0 0 / 18%);
 }
 
 .tag-badge-list {
@@ -1908,10 +1926,17 @@
 
 .post-editor-workspace--split {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.post-editor-workspace:not(.post-editor-workspace--split) {
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .post-editor-pane {
   min-width: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Tiptap Editor */
@@ -1924,6 +1949,13 @@
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.015) 100%);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.tiptap-editor-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .tiptap-editor--loading {

@@ -335,7 +335,7 @@ export default function PostEditor({ postId, onBack }: Props) {
         </div>
       )}
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <div id="editor-workspace" role="tabpanel" aria-labelledby={`editor-tab-${editorView}`} className={`post-editor-workspace grid h-full min-h-0 gap-4 ${editorView === "split" ? "post-editor-workspace--split" : "grid-cols-1"}`}>
           {editorView !== "preview" && <div className="post-editor-pane min-h-0"><TiptapEditor content={content} onChange={setContent} /></div>}
           {editorView !== "edit" && (
