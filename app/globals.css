@@ -1740,12 +1740,178 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.post-editor-loading {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  color: oklch(0.708 0 0);
+  font-size: 0.875rem;
+}
+
+.editor-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: oklch(0.708 0 0);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.825rem;
+  transition: color var(--transition-base);
+}
+
+.editor-back-button:hover {
+  color: oklch(0.985 0 0);
+}
+
+.editor-save-button {
+  min-width: 5.7rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: oklch(0.985 0 0);
+  color: oklch(0.145 0 0);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.55rem 0.8rem;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.editor-save-button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.editor-save-button:disabled {
+  cursor: default;
+  opacity: 0.58;
+}
+
+.editor-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.editor-status--success {
+  border-color: rgb(74 222 128 / 20%);
+  background: rgb(74 222 128 / 10%);
+  color: rgb(74 222 128);
+}
+
+.editor-status--error {
+  border-color: rgb(248 113 113 / 25%);
+  background: rgb(248 113 113 / 10%);
+  color: rgb(248 113 113);
+}
+
+.editor-status--info {
+  border-color: rgb(125 211 252 / 22%);
+  background: rgb(125 211 252 / 9%);
+  color: rgb(186 230 253);
+}
+
+.editor-draft-notice__actions {
+  display: inline-flex;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.editor-draft-notice button {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+}
+
+.editor-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.editor-reading-time {
+  flex-shrink: 0;
+  color: oklch(0.556 0 0);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.69rem;
+  white-space: nowrap;
+}
+
+.editor-field {
+  display: grid;
+  gap: 0.35rem;
+  color: oklch(0.708 0 0);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.editor-field-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: oklch(0.708 0 0);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.editor-field input,
+.editor-field select {
+  width: 100%;
+  min-height: 2.25rem;
+  border: 1px solid oklch(1 0 0 / 10%);
+  border-radius: 0.375rem;
+  background: oklch(0.269 0 0);
+  color: oklch(0.985 0 0);
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.editor-field input:focus,
+.editor-field select:focus {
+  border-color: oklch(0.708 0 0 / 65%);
+}
+
+.editor-field-error {
+  margin: 0.35rem 0 0;
+  color: rgb(248 113 113);
+  font-size: 0.72rem;
+}
+
 .post-preview-panel {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  overscroll-behavior: contain;
 }
 
 .post-preview-panel .markdown-body {
   font-size: 0.96rem;
+}
+
+.post-preview-panel:focus-visible {
+  outline: 2px solid oklch(0.985 0 0 / 55%);
+  outline-offset: 2px;
+}
+
+.post-editor-workspace--split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.post-editor-pane {
+  min-width: 0;
 }
 
 /* Tiptap Editor */
@@ -1758,6 +1924,16 @@
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.015) 100%);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.tiptap-editor--loading {
+  min-height: 12rem;
+  animation: tiptap-loading 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes tiptap-loading {
+  from { opacity: 0.45; }
+  to { opacity: 0.9; }
 }
 
 .tiptap-toolbar {
@@ -1801,6 +1977,14 @@
   cursor: default;
 }
 
+.tiptap-toolbar-btn:focus-visible,
+.editor-back-button:focus-visible,
+.editor-save-button:focus-visible,
+.editor-draft-notice button:focus-visible {
+  outline: 2px solid oklch(0.985 0 0 / 70%);
+  outline-offset: 2px;
+}
+
 .tiptap-toolbar-divider {
   width: 1px;
   height: 20px;
@@ -1815,6 +1999,7 @@
   padding: 1.25rem 1.5rem;
   outline: none;
   caret-color: oklch(0.985 0 0);
+  overscroll-behavior: contain;
 }
 
 .tiptap-editor .tiptap p.is-editor-empty:first-child::before {
@@ -1840,4 +2025,203 @@
   padding: 0;
   font-family: var(--font-geist-mono), monospace;
   font-size: 0.85rem;
+}
+
+.tiptap-notice {
+  margin: 0;
+  border-bottom: 1px solid oklch(1 0 0 / 8%);
+  background: oklch(0.269 0 0 / 55%);
+  color: oklch(0.75 0 0);
+  padding: 0.45rem 0.8rem;
+  font-size: 0.72rem;
+}
+
+.tiptap-dialog-backdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 62%);
+}
+
+.tiptap-dialog {
+  width: min(100%, 27rem);
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 0.8rem;
+  background: oklch(0.205 0 0);
+  box-shadow: 0 24px 72px rgb(0 0 0 / 50%);
+  padding: 1rem;
+}
+
+.tiptap-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tiptap-dialog-heading h2 {
+  margin: 0;
+  color: oklch(0.985 0 0);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tiptap-dialog-close {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: oklch(0.708 0 0);
+  cursor: pointer;
+}
+
+.tiptap-dialog label {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  color: oklch(0.708 0 0);
+  font-size: 0.72rem;
+}
+
+.tiptap-dialog label span {
+  color: oklch(0.556 0 0);
+}
+
+.tiptap-dialog input {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 0.4rem;
+  background: oklch(0.145 0 0);
+  color: oklch(0.985 0 0);
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.tiptap-dialog input:focus {
+  border-color: oklch(0.708 0 0 / 70%);
+}
+
+.tiptap-dialog-error {
+  margin: 0.65rem 0 0;
+  color: rgb(248 113 113);
+  font-size: 0.75rem;
+}
+
+.tiptap-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.tiptap-dialog-actions button {
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: oklch(0.85 0 0);
+  cursor: pointer;
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.tiptap-dialog-actions button[type="submit"] {
+  border-color: oklch(0.985 0 0);
+  background: oklch(0.985 0 0);
+  color: oklch(0.145 0 0);
+  font-weight: 600;
+}
+
+.tiptap-dialog-actions .tiptap-dialog-remove {
+  margin-right: auto;
+  border-color: rgb(248 113 113 / 32%);
+  color: rgb(252 165 165);
+}
+
+.editor-dialog-backdrop {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 62%);
+}
+
+.editor-confirm-dialog {
+  width: min(100%, 28rem);
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 0.8rem;
+  background: oklch(0.205 0 0);
+  box-shadow: 0 24px 72px rgb(0 0 0 / 50%);
+  padding: 1.2rem;
+}
+
+.editor-confirm-dialog h2 {
+  margin: 0;
+  color: oklch(0.985 0 0);
+  font-size: 1rem;
+}
+
+.editor-confirm-dialog p {
+  margin: 0.65rem 0 0;
+  color: oklch(0.708 0 0);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.editor-confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 1.2rem;
+}
+
+.editor-confirm-dialog__actions button {
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: oklch(0.85 0 0);
+  cursor: pointer;
+  padding: 0.48rem 0.7rem;
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.editor-confirm-dialog__actions button:last-child {
+  border-color: rgb(248 113 113 / 30%);
+  background: rgb(248 113 113 / 11%);
+  color: rgb(252 165 165);
+}
+
+@media (max-width: 640px) {
+  .editor-status { align-items: flex-start; flex-direction: column; }
+  .editor-title-row { align-items: flex-start; flex-direction: column; gap: 0.25rem; }
+  .tiptap-editor .tiptap { padding: 1rem; }
+  .tiptap-toolbar-divider { display: none; }
+}
+
+@media (max-width: 1023px) {
+  .post-editor-workspace--split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(24rem, 1fr) minmax(24rem, 1fr);
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.15rem;
+  }
+
+  .post-editor-workspace--split .post-editor-pane {
+    min-height: 24rem;
+  }
 }

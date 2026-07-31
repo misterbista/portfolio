@@ -94,7 +94,7 @@ export default function AdminPage() {
                 />
               </>
             ) : (
-              <PostEditor postId={editingPostId} onBack={backToList} />
+              <PostEditor key={editingPostId ?? "new"} postId={editingPostId} onBack={backToList} />
             )}
           </div>
         )}
