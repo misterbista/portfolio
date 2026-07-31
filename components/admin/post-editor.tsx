@@ -337,9 +337,9 @@ export default function PostEditor({ postId, onBack }: Props) {
 
       <div className="flex-1 min-h-0 overflow-hidden">
         <div id="editor-workspace" role="tabpanel" aria-labelledby={`editor-tab-${editorView}`} className={`post-editor-workspace grid h-full min-h-0 gap-4 ${editorView === "split" ? "post-editor-workspace--split" : "grid-cols-1"}`}>
-          {editorView !== "preview" && <div className="post-editor-pane min-h-0"><TiptapEditor content={content} onChange={setContent} /></div>}
+          {editorView !== "preview" && <div className="post-editor-pane post-editor-pane--editor min-h-0"><TiptapEditor content={content} onChange={setContent} /></div>}
           {editorView !== "edit" && (
-            <div ref={previewPanelRef} className="post-preview-panel post-editor-pane min-h-0 overflow-y-auto rounded-2xl border border-border bg-secondary/25 p-5" tabIndex={0} aria-label="Post preview">
+            <div ref={previewPanelRef} className="post-preview-panel post-editor-pane--preview min-h-0 overflow-y-auto rounded-2xl border border-border bg-secondary/25 p-5" tabIndex={0} aria-label="Post preview">
               <div className="mb-6 border-b border-border pb-4"><p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground font-medium">Preview</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">{title || "Untitled post"}</h1>{excerpt && <p className="mt-3 text-sm leading-7 text-muted-foreground">{excerpt}</p>}</div>
               <div className="markdown-body" dangerouslySetInnerHTML={{ __html: content || "<p class='text-muted-foreground'>Start writing to see the preview.</p>" }} />
             </div>

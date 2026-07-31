@@ -1933,9 +1933,13 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
-.post-editor-pane {
+.post-editor-pane--editor,
+.post-editor-pane--preview {
   min-width: 0;
   height: 100%;
+}
+
+.post-editor-pane--editor {
   overflow: hidden;
 }
 
@@ -2253,7 +2257,8 @@
     padding-right: 0.15rem;
   }
 
-  .post-editor-workspace--split .post-editor-pane {
+  .post-editor-workspace--split .post-editor-pane--editor,
+  .post-editor-workspace--split .post-editor-pane--preview {
     min-height: 24rem;
   }
 }
