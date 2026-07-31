@@ -29,7 +29,9 @@ type LatestWriting = {
   categories: { name: string }[] | { name: string } | null;
 };
 
-export const revalidate = 60;
+// The Work page highlights the newest published article, so it must not serve
+// an older cached result immediately after a post is published.
+export const revalidate = 0;
 
 async function getLatestWriting() {
   if (!supabase) return null;
