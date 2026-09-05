@@ -6,9 +6,11 @@ const ticks = Array.from({ length: 21 }, (_, index) => index);
 
 export function ReadingProgress() {
   const [progress, setProgress] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     let frame = 0;
+    let idleTimer: ReturnType<typeof setTimeout> | undefined;
 
     const measure = () => {
       frame = 0;
@@ -21,16 +23,24 @@ export function ReadingProgress() {
       if (!frame) frame = window.requestAnimationFrame(measure);
     };
 
+    const handleScroll = () => {
+      schedule();
+      setIsScrolling(true);
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setIsScrolling(false), 650);
+    };
+
     const observer = new ResizeObserver(schedule);
     observer.observe(document.body);
-    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", schedule);
     schedule();
 
     return () => {
       window.cancelAnimationFrame(frame);
+      clearTimeout(idleTimer);
       observer.disconnect();
-      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", schedule);
     };
   }, []);
@@ -40,6 +50,8 @@ export function ReadingProgress() {
   return (
     <div
       className="reading-ruler"
+      data-scrolling={isScrolling}
+      aria-hidden={!isScrolling}
       role="progressbar"
       aria-label="Reading progress"
       aria-valuemin={0}

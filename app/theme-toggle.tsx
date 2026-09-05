@@ -1,18 +1,65 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type MouseEvent } from "react";
 
 type Theme = "light" | "dark";
 
 const storageKey = "portfolio-theme";
 const themeChangeEvent = "portfolio-theme-change";
+let activeTransition: ViewTransition | undefined;
+let requestedTheme: Theme | undefined;
 
-function applyTheme(theme: Theme) {
-  document.documentElement.dataset.theme = theme;
-  document.documentElement.style.colorScheme = theme;
+function syncThemeIcons(theme: Theme) {
   document
-    .querySelector('meta[name="theme-color"]')
-    ?.setAttribute("content", theme === "dark" ? "#111210" : "#ffffff");
+    .querySelectorAll<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]')
+    .forEach((icon) => {
+      icon.media = icon.getAttribute("href") === `/favicon-${theme}.svg` ? "all" : "not all";
+    });
+}
+
+function applyTheme(theme: Theme, origin?: { x: number; y: number }) {
+  requestedTheme = theme;
+  activeTransition?.skipTransition();
+  document.documentElement.classList.add("theme-transitioning");
+
+  const update = () => {
+    if (requestedTheme !== theme) return;
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", theme === "dark" ? "#111210" : "#ffffff");
+    syncThemeIcons(theme);
+    window.dispatchEvent(new Event(themeChangeEvent));
+  };
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (document.startViewTransition && !reducedMotion) {
+    const x = origin?.x ?? window.innerWidth / 2;
+    const y = origin?.y ?? window.innerHeight / 2;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y),
+    ) + 48;
+    const style = document.documentElement.style;
+    style.setProperty("--theme-origin-x", `${x}px`);
+    style.setProperty("--theme-origin-y", `${y}px`);
+    style.setProperty("--theme-reveal-end", `${radius}px`);
+    style.setProperty("--theme-reveal-duration", theme === "dark" ? "820ms" : "740ms");
+    const transition = document.startViewTransition(update);
+    activeTransition = transition;
+    void transition.finished.finally(() => {
+      if (activeTransition !== transition) return;
+      activeTransition = undefined;
+      document.documentElement.classList.remove("theme-transitioning");
+    });
+  } else {
+    activeTransition = undefined;
+    update();
+    requestAnimationFrame(() => {
+      if (!activeTransition) document.documentElement.classList.remove("theme-transitioning");
+    });
+  }
 }
 
 function currentTheme(): Theme {
@@ -21,6 +68,7 @@ function currentTheme(): Theme {
 
 function subscribeToTheme(onChange: () => void) {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
+  syncThemeIcons(currentTheme());
 
   const handleSavedThemeChange = () => onChange();
   const handleSystemThemeChange = (event: MediaQueryListEvent) => {
@@ -50,15 +98,18 @@ export function ThemeToggle() {
     () => "light",
   );
 
-  const toggleTheme = () => {
-    const nextTheme = currentTheme() === "dark" ? "light" : "dark";
-    applyTheme(nextTheme);
+  const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
+    const nextTheme = (requestedTheme ?? currentTheme()) === "dark" ? "light" : "dark";
+    const bounds = event.currentTarget.getBoundingClientRect();
+    applyTheme(nextTheme, {
+      x: bounds.left + bounds.width / 2,
+      y: bounds.top + bounds.height / 2,
+    });
     try {
       window.localStorage.setItem(storageKey, nextTheme);
     } catch {
       // The theme still applies for this visit when storage is unavailable.
     }
-    window.dispatchEvent(new Event(themeChangeEvent));
   };
 
   const label = `Switch to ${theme === "dark" ? "light" : "dark"} theme`;

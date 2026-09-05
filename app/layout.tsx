@@ -29,6 +29,19 @@ const themeScript = `
       document.documentElement.dataset.theme = "light";
     }
   })();
+  (() => {
+    const syncIcons = () => {
+      const theme = document.documentElement.dataset.theme || "light";
+      document.querySelectorAll('link[rel="icon"][type="image/svg+xml"]').forEach((icon) => {
+        icon.media = icon.getAttribute("href") === "/favicon-" + theme + ".svg" ? "all" : "not all";
+      });
+    };
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", syncIcons, { once: true });
+    } else {
+      syncIcons();
+    }
+  })();
 `;
 
 export const viewport: Viewport = {
@@ -44,7 +57,10 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   icons: {
-    icon: { url: "/code.png", type: "image/png", sizes: "512x512" },
+    icon: [
+      { url: "/favicon-light.svg", type: "image/svg+xml", sizes: "any", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-dark.svg", type: "image/svg+xml", sizes: "any", media: "(prefers-color-scheme: dark)" },
+    ],
     apple: { url: "/code.png", sizes: "512x512" },
   },
   authors: [{ name: siteConfig.name, url: siteConfig.url }],
