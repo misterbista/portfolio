@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { siteConfig } from "./site-config";
 import { ThemeToggle } from "./theme-toggle";
+import { ReadingProgress } from "./reading-progress";
 
 const profileJsonLd = {
   "@context": "https://schema.org",
@@ -45,6 +46,7 @@ const profileJsonLd = {
 export default function Home() {
   return (
     <main className="story-shell">
+      <ReadingProgress />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -54,7 +56,7 @@ export default function Home() {
       <a className="skip-link" href="#story-content">
         Skip to story
       </a>
-      <article className="story">
+      <article className="story" id="top">
         <nav className="masthead" aria-label="Personal navigation">
           <Link
             className="masthead__identity"
@@ -75,18 +77,29 @@ export default function Home() {
         </nav>
 
         <header className="story-header" id="story-content">
-          <h1>My Story</h1>
-          <p>
-            I got into software because I wanted to understand what was
-            happening behind the screen—not only how an interface worked, but
-            how the services, data, and decisions behind it came together as a
-            real system.
-          </p>
+          <div className="story-header__title">
+            <span className="eyebrow">A little about me</span>
+            <h1>My Story<span className="title-period">.</span></h1>
+          </div>
+          <div className="story-header__intro">
+            <p className="story-header__lead">
+              Curiosity brought me to software. Ownership keeps me here.
+            </p>
+            <p>
+              I got into software because I wanted to understand what was
+              happening behind the screen—not only how an interface worked, but
+              how the services, data, and decisions behind it came together as a
+              real system.
+            </p>
+          </div>
         </header>
 
         <div className="story-sections">
           <section className="story-section" aria-labelledby="beginning">
-            <h2 id="beginning">01 / Beginning</h2>
+            <div className="story-section__label">
+              <h2 id="beginning"><span className="chapter-number">01 /</span> Beginning</h2>
+              <p>Citytech Global · Autovity Tech</p>
+            </div>
             <div className="story-section__body">
               <p>
                 My first professional glimpse of that world came at{" "}
@@ -109,7 +122,10 @@ export default function Home() {
           </section>
 
           <section className="story-section" aria-labelledby="ownership">
-            <h2 id="ownership">02 / Ownership</h2>
+            <div className="story-section__label">
+              <h2 id="ownership"><span className="chapter-number">02 /</span> Ownership</h2>
+              <p>Waterflow Technology</p>
+            </div>
             <div className="story-section__body">
               <p>
                 <strong>Waterflow Technology</strong> gave me the opportunity to
@@ -127,7 +143,10 @@ export default function Home() {
           </section>
 
           <section className="story-section" aria-labelledby="production">
-            <h2 id="production">03 / Production</h2>
+            <div className="story-section__label">
+              <h2 id="production"><span className="chapter-number">03 /</span> Production</h2>
+              <p>ITsutra</p>
+            </div>
             <div className="story-section__body">
               <p>
                 Later, as a Product Engineer at <strong>ITsutra</strong>, I moved
@@ -150,7 +169,11 @@ export default function Home() {
           </section>
 
           <section className="story-section" aria-labelledby="now">
-            <h2 id="now">04 / Now</h2>
+            <div className="story-section__label">
+              <h2 id="now"><span className="chapter-number">04 /</span> Now</h2>
+              <p>Tekkon Nepal · Plancare</p>
+              <span className="current-label"><span aria-hidden="true" /> Current chapter</span>
+            </div>
             <div className="story-section__body">
               <p>
                 Today, I work as a Full Stack Developer at{" "}
@@ -183,7 +206,7 @@ export default function Home() {
                 architecture, performance, reliability, production, and the
                 teams behind those systems.
               </p>
-              <p>
+              <p className="story-section__closing">
                 The direction I want to keep moving in is clear: toward taking
                 ownership of complex systems from the first conversation about
                 the business problem through design, development, optimization,
@@ -194,7 +217,13 @@ export default function Home() {
         </div>
 
         <footer className="story-footer">
-          <p>Have a system problem worth thinking through?</p>
+          <div className="story-footer__invitation">
+            <span className="eyebrow">The next conversation</span>
+            <h2>Have a system problem<br />worth thinking through?</h2>
+            <a className="contact-link" href={`mailto:${siteConfig.email}`}>
+              Let’s talk <span aria-hidden="true">↗</span>
+            </a>
+          </div>
           <address
             className="story-footer__links"
             aria-label="Contact and social links"
@@ -218,6 +247,10 @@ export default function Home() {
             </a>
           </address>
         </footer>
+        <div className="colophon">
+          <span>Piyushraj Bista · Kathmandu, Nepal</span>
+          <a className="text-link" href="#top">Back to top <span aria-hidden="true">↑</span></a>
+        </div>
       </article>
     </main>
   );
