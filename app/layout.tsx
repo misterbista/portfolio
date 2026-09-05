@@ -43,6 +43,10 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
+  icons: {
+    icon: { url: "/code.png", type: "image/png", sizes: "512x512" },
+    apple: { url: "/code.png", sizes: "512x512" },
+  },
   authors: [{ name: siteConfig.name, url: siteConfig.url }],
   creator: siteConfig.name,
   publisher: siteConfig.name,
