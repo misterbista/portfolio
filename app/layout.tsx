@@ -33,6 +33,7 @@ const themeScript = `
 
 export const viewport: Viewport = {
   colorScheme: "light dark",
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
