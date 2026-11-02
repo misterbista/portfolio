@@ -29,19 +29,6 @@ const themeScript = `
       document.documentElement.dataset.theme = "light";
     }
   })();
-  (() => {
-    const syncIcons = () => {
-      const theme = document.documentElement.dataset.theme || "light";
-      document.querySelectorAll('link[rel="icon"][type="image/svg+xml"]').forEach((icon) => {
-        icon.media = icon.getAttribute("href") === "/favicon-" + theme + ".svg" ? "all" : "not all";
-      });
-    };
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", syncIcons, { once: true });
-    } else {
-      syncIcons();
-    }
-  })();
 `;
 
 export const viewport: Viewport = {

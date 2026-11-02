@@ -9,14 +9,6 @@ const themeChangeEvent = "portfolio-theme-change";
 let activeTransition: ViewTransition | undefined;
 let requestedTheme: Theme | undefined;
 
-function syncThemeIcons(theme: Theme) {
-  document
-    .querySelectorAll<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]')
-    .forEach((icon) => {
-      icon.media = icon.getAttribute("href") === `/favicon-${theme}.svg` ? "all" : "not all";
-    });
-}
-
 function applyTheme(theme: Theme, origin?: { x: number; y: number }) {
   requestedTheme = theme;
   activeTransition?.skipTransition();
@@ -29,23 +21,19 @@ function applyTheme(theme: Theme, origin?: { x: number; y: number }) {
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute("content", theme === "dark" ? "#111210" : "#ffffff");
-    syncThemeIcons(theme);
     window.dispatchEvent(new Event(themeChangeEvent));
   };
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (document.startViewTransition && !reducedMotion) {
-    const x = origin?.x ?? window.innerWidth / 2;
-    const y = origin?.y ?? window.innerHeight / 2;
+  if (origin && document.startViewTransition && !reducedMotion) {
     const radius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y),
+      Math.max(origin.x, window.innerWidth - origin.x),
+      Math.max(origin.y, window.innerHeight - origin.y),
     ) + 48;
     const style = document.documentElement.style;
-    style.setProperty("--theme-origin-x", `${x}px`);
-    style.setProperty("--theme-origin-y", `${y}px`);
+    style.setProperty("--theme-origin-x", `${origin.x}px`);
+    style.setProperty("--theme-origin-y", `${origin.y}px`);
     style.setProperty("--theme-reveal-end", `${radius}px`);
-    style.setProperty("--theme-reveal-duration", theme === "dark" ? "820ms" : "740ms");
     const transition = document.startViewTransition(update);
     activeTransition = transition;
     void transition.finished.finally(() => {
@@ -68,7 +56,6 @@ function currentTheme(): Theme {
 
 function subscribeToTheme(onChange: () => void) {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
-  syncThemeIcons(currentTheme());
 
   const handleSavedThemeChange = () => onChange();
   const handleSystemThemeChange = (event: MediaQueryListEvent) => {
@@ -101,7 +88,7 @@ export function ThemeToggle() {
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     const nextTheme = (requestedTheme ?? currentTheme()) === "dark" ? "light" : "dark";
     const bounds = event.currentTarget.getBoundingClientRect();
-    applyTheme(nextTheme, {
+    applyTheme(nextTheme, event.detail === 0 ? undefined : {
       x: bounds.left + bounds.width / 2,
       y: bounds.top + bounds.height / 2,
     });
