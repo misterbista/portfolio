@@ -12,7 +12,7 @@
   --link-line: #c9c9c9;
   --muted-hover: #4d4d4d;
   --control-background: #fafafa;
-  --page-gutter: clamp(1.5rem, 5vw, 3rem);
+  --page-gutter: clamp(1.75rem, 5vw, 3rem);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -700,4 +700,3 @@ html.theme-transitioning,
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
 }
-
